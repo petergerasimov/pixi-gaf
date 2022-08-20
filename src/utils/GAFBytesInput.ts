@@ -1,60 +1,59 @@
+import { BufferUtility } from "bufferutility";
+
 /**
  * AS3 ByteArray "Wrapper"
  * @author Mathieu Anthoine
  */
-export default class GAFBytesInput extends BytesInput {
-
-	constructor(b:Bytes, pos?:number, len?:number) 
+export default class GAFBytesInput extends BufferUtility {
+	bigEndian = false;
+	constructor(b: ArrayBuffer, pos = 0, len?:number) 
 	{
-		super(b, pos, len);	
-	}	
-	
-	// AS3 readByte
-	readSByte():number {
-		var lByte:number = readByte();
-		return lByte > 128 ? lByte-256 : lByte;
+		super(b.slice(0, len));
+		this.position = pos;
 	}
 	
 	readUnsignedByte ():number {
-		return readByte();
+		return this.readByte();
+	}
+
+	// Couldn't find in haxe docs what this is supposed to do
+	readnumber16() {
+		return this.bigEndian ? this.readInt16BE() : this.readInt16();
 	}
 	
 	readShort():number {
-		var lByte:number = readnumber16();
+		const lByte:number = this.readnumber16();
 		return lByte > 32767 ? lByte-65536 : lByte;
 	}	
 	
 	readUnsignedShort ():number {
-		return readnumber16();
+		return this.readnumber16();
 	}
 	
 	readnumber ():number {
-		return readnumber32();
-		//var lnumber:number = readnumber32();
-		//lnumber = lnumber > 2147483648 ? lnumber - 4294967296 : lnumber;
-		//return cast(lnumber, number);
+		return this.readnumber32();
+		// var lnumber:number = readnumber32();
+		// lnumber = lnumber > 2147483648 ? lnumber - 4294967296 : lnumber;
+		// return cast(lnumber, number);
 	}
 	
 	readUnsignednumber():number {
-		return untyped readnumber32();
+		return this.readnumber32();
 	}
 
-	/**
-	* may return an Unsigned number32 but number32 are converted to number32 if they are above 2147483648
-	* @return signed number32
-	*/
+	// may return an Unsigned number32 but number32 are converted to number32 if they are above 2147483648
 	private readnumber32 ():number {
-		var lA:number = readnumber16();
-		var lB:number = readnumber16();
+		const lA:number = this.readnumber16();
+		const lB:number = this.readnumber16();
 		return (lB << 16) + lA;
 	}
 	
 	readboolean ():boolean{
-		return readSByte() != 0;
+		return this.readSByte() != 0;
 	}
 	
 	readUTF ():string {
-		return readString(readUnsignedShort());
+		return this.readString(this.readUnsignedShort());
 	}
 	
 	

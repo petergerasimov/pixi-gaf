@@ -1,6 +1,7 @@
 import { utils, Rectangle, Matrix, Point, TextStyle } from "pixi.js";
 import { GAFEvent } from "../../events/GAFEvent";
 import TextFormatAlign from "../../text/TextFormatAlign";
+import GAFBytesInput from "../../utils/GAFBytesInput";
 import { MathUtility } from "../../utils/MathUtility";
 import CAnimationFrame from "../config/CAnimationFrame";
 import CAnimationFrameInstance from "../config/CAnimationFrameInstance";
@@ -20,6 +21,8 @@ import CTextureAtlasSource from "../config/CTextureAtlasSource";
 import GAF from "../GAF";
 import GAFAssetConfig from "../GAFAssetConfig";
 import GAFTimelineConfig from "../GAFTimelineConfig";
+import ErrorConstants from "./ErrorConstants";
+import WarningConstants from "./WarningConstants";
 
 /**
  * TODO
@@ -582,7 +585,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private static readNamedParts(tagContent:GAFBytesInput, timelineConfig:GAFTimelineConfig):void
 	{
-		timelineConfig.namedParts=new Map<String,String>();
+		timelineConfig.namedParts=new Map<string,string>();
 
 		var length:number=tagContent.readUnsignednumber();
 		var partID:number=0;
@@ -748,7 +751,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 		var instance:CAnimationFrameInstance;
 		var currentFrame:CAnimationFrame;
 		var blurFilter:CBlurFilterData;
-		var blurFilters:Map<String,CBlurFilterData>= new Map<String,CBlurFilterData>();
+		var blurFilters:Map<string,CBlurFilterData>= new Map<string,CBlurFilterData>();
 		var filter:CFilter;
 
 		if(framesCount!=-1)

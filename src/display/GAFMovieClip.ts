@@ -81,8 +81,8 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 	//TODO TextureSmoothing.BILINEAR
 	private _smoothing:string = "";// TextureSmoothing.BILINEAR;
 
-	private _displayObjectsDictionary:Map<String,IGAFDisplayObject>;
-	private _stencilMasksDictionary:Map<String,DisplayObject>;
+	private _displayObjectsDictionary:Map<string,IGAFDisplayObject>;
+	private _stencilMasksDictionary:Map<string,DisplayObject>;
 	private _displayObjectsVector:Array<IGAFDisplayObject>;
 	private _imagesVector:Array<IGAFImage>;
 	private _mcVector:Array<GAFMovieClip>;
@@ -199,9 +199,9 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 	*/
 	showMaskByID(id:string):void
 	{
-		var maskObject:IGAFDisplayObject=this._displayObjectsDictionary[id];
-		var maskAsDisplayObject:DisplayObject=cast(maskObject, DisplayObject);
-		var stencilMaskObject:DisplayObject=this._stencilMasksDictionary[id];
+		let maskObject:IGAFDisplayObject=this._displayObjectsDictionary[id];
+		let maskAsDisplayObject:DisplayObject=cast(maskObject, DisplayObject);
+		let stencilMaskObject:DisplayObject=this._stencilMasksDictionary[id];
 		if(maskObject!=null && stencilMaskObject!=null)
 		{
 			maskAsDisplayObject.mask=stencilMaskObject;
@@ -222,9 +222,9 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 	*/
 	hideMaskByID(id:string):void
 	{
-		var maskObject:IGAFDisplayObject=this._displayObjectsDictionary[id];
-		var maskAsDisplayObject:DisplayObject=cast(maskObject, DisplayObject);
-		var stencilMaskObject:DisplayObject=this._stencilMasksDictionary[id];
+		let maskObject:IGAFDisplayObject=this._displayObjectsDictionary[id];
+		let maskAsDisplayObject:DisplayObject=cast(maskObject, DisplayObject);
+		let stencilMaskObject:DisplayObject=this._stencilMasksDictionary[id];
 		if(stencilMaskObject!=null)
 		{
 			if(stencilMaskObject.parent==this)
@@ -276,7 +276,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 
 		if(this._playingSequence!=null)
 		{
-			var startFrame:number=this._reverse ? this._playingSequence.endFrameNo - 1:this._playingSequence.startFrameNo;
+			let startFrame:number=this._reverse ? this._playingSequence.endFrameNo - 1:this._playingSequence.startFrameNo;
 			if(play)
 			{
 				this.gotoAndPlay(startFrame);
@@ -305,7 +305,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 
 		if(applyToAllChildren)
 		{
-			var i:number=this._mcVector.length;
+			let i:number=this._mcVector.length;
 			while(i-->0)
 			{
 				this._mcVector[i]._started=true;
@@ -330,7 +330,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 
 		if(applyToAllChildren)
 		{
-			var i:number=this._mcVector.length;
+			let i:number=this._mcVector.length;
 			while(i-->0)
 			{
 				this._mcVector[i]._started=false;
@@ -372,7 +372,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		//TODO: loop
 		//loop=loop;
 
-		var i:number=this._mcVector.length;
+		let i:number=this._mcVector.length;
 		while(i-- > 0)
 		{
 			this._mcVector[i].loop=loop;
@@ -386,7 +386,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 	advanceTime(passedTime:number):void
 	{
 		if (this._previousTime==-1) this._previousTime = passedTime;
-		var lTime:number = (passedTime - this._previousTime) / 1000;
+		let lTime:number = (passedTime - this._previousTime) / 1000;
 		this._previousTime = passedTime;
 
 		if(this._disposed)
@@ -403,7 +403,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		{
 			this._currentTime +=lTime;
 
-			var framesToPlay:number=((this._currentTime - this._lastFrameTime)/ this._frameDuration) | 0;
+			let framesToPlay:number=((this._currentTime - this._lastFrameTime)/ this._frameDuration) | 0;
 			if(this._skipFrames)
 			{
 				//here we skip the drawing of all frames to be played right now, but the last one
@@ -430,7 +430,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		}
 		if(this._mcVector!=null)
 		{
-			for(i in 0..._mcVector.length)
+			for(const i in this._mcVector)
 			{
 				this._mcVector[i].advanceTime(passedTime);
 			}
@@ -471,7 +471,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 	*/
 	copy():GAFMovieClip
 	{
-		return new GAFMovieClip(this._gafTimeline, Std.int(this.fps), this._addToJuggler);
+		return new GAFMovieClip(this._gafTimeline, this.fps | 0 , this._addToJuggler);
 	}
 	
 	/**
@@ -505,7 +505,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 			return;
 		}
 
-		var i:number=0, l:number=0;
+		let i:number=0, l:number=0;
 
 		if(this._totalFrames>1)
 		{
@@ -514,12 +514,12 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 
 		if(applyToAllChildren && this._config.animationConfigFrames.frames.length>0)
 		{
-			var frameConfig:CAnimationFrame=this._config.animationConfigFrames.frames[this._currentFrame];
+			let frameConfig:CAnimationFrame=this._config.animationConfigFrames.frames[this._currentFrame];
 			if(frameConfig.actions!=null)
 			{
-				var action:CFrameAction;
-				var l:number = frameConfig.actions.length;
-				for(i in 0...l)
+				let action:CFrameAction;
+				let l:number = frameConfig.actions.length;
+				for(let i = 0; i < l; i++)
 				{
 					action=frameConfig.actions[i];
 					if(action.type==CFrameAction.STOP
@@ -532,15 +532,15 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 				}
 			}
 
-			var child:Container;
-			var childMC:GAFMovieClip;
+			let child:Container;
+			let childMC:GAFMovieClip;
 			l = this.children.length;
-			for(i in 0...l)
+			for(let i = 0; i < l; i++)
 			{
-				child=cast(this.getChildAt(i),Container);
-				if(Std.is(child, GAFMovieClip))
+				child=this.getChildAt(i) as Container;
+				if(child instanceof GAFMovieClip)
 				{
-					childMC=cast(child, GAFMovieClip);
+					childMC = child;
 					if(calledByUser)
 					{
 						childMC.play(true);
@@ -565,21 +565,17 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		if(applyToAllChildren
 		&& this._config.animationConfigFrames.frames.length>0)
 		{
-			var child:Container;
-			var childMC:GAFMovieClip;
-			for(i in 0...children.length)
+			for(const child of this.children)
 			{
-				child = cast (this.getChildAt(i), Container);
-				if(Std.is(child, GAFMovieClip))
+				if(child instanceof GAFMovieClip)
 				{
-					childMC=cast(child, GAFMovieClip);
 					if(calledByUser)
 					{
-						childMC.stop(true);
+						child.stop(true);
 					}
 					else
 					{
-						childMC._stop(true);
+						child._stop(true);
 					}
 				}
 			}
@@ -588,8 +584,8 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 
 	private checkPlaybackEvents():void
 	{
-		var sequence:CAnimationSequence;
-		if(hasEventListener(GAFMovieClip.EVENT_TYPE_SEQUENCE_START))
+		let sequence:CAnimationSequence;
+		if(EventEmitterUtility.hasEventListener(GAFMovieClip.EVENT_TYPE_SEQUENCE_START))
 		{
 			sequence=this._config.animationSequences.getSequenceStart(this._currentFrame + 1);
 			if(sequence!=null)
@@ -597,7 +593,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 				this.emit(GAFMovieClip.EVENT_TYPE_SEQUENCE_START,{target:this,bubbles:false,data:sequence});
 			}
 		}
-		if(hasEventListener(GAFMovieClip.EVENT_TYPE_SEQUENCE_END))
+		if(EventEmitterUtility.hasEventListener(GAFMovieClip.EVENT_TYPE_SEQUENCE_END))
 		{
 			sequence=this._config.animationSequences.getSequenceEnd(this._currentFrame + 1);
 			if(sequence!=null)
@@ -605,7 +601,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 				this.emit(GAFMovieClip.EVENT_TYPE_SEQUENCE_END,{target:this,bubbles:false,data:sequence});
 			}
 		}
-		if(hasEventListener(GAFEvent.COMPLETE))
+		if(EventEmitterUtility.hasEventListener(GAFEvent.COMPLETE))
 		{
 			if(this._currentFrame==this._finalFrame)
 			{
@@ -622,15 +618,11 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 			return;
 		}
 
-		var i:number=0, l:number=0;
-		var actions:Array<CFrameAction> = this._config.animationConfigFrames.frames[this._currentFrame].actions;
+		const actions:Array<CFrameAction> = this._config.animationConfigFrames.frames[this._currentFrame].actions;
 		if(actions!=null)
 		{
-			var action:CFrameAction;
-			var l:number = actions.length;
-			for(i in 0...l)
+			for(const action of actions)
 			{
-				action=actions[i];
 				switch(action.type)
 				{
 					case CFrameAction.STOP:
@@ -642,11 +634,11 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 					case CFrameAction.GOTO_AND_PLAY:
 						this.gotoAndPlay(action.params[0]);
 					case CFrameAction.DISPATCH_EVENT:
-						var actionType:string=action.params[0];
-						if(hasEventListener(actionType))
+						let actionType:string=action.params[0];
+						if(EventEmitterUtility.hasEventListener(actionType))
 						{
-							var bubbles:boolean= false;
-							var data:Dynamic=null;
+							let bubbles:boolean= false;
+							let data:any=null;
 							
 							switch(action.params.length)
 							{
@@ -678,9 +670,9 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 				frame=this._totalFrames;
 			}
 		}
-		else if(Std.is(frame, String))
+		else if(Std.is(frame, string))
 		{
-			var label:string=frame;
+			let label:string=frame;
 			frame=this._config.animationSequences.getStartFrameNo(label);
 
 			if(frame==0)
@@ -718,8 +710,8 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 	private draw():void
 	{
 		
-		var i:number=0;
-		var l:number=0;
+		let i:number=0;
+		let l:number=0;
 
 		if(this._config.debugRegions!=null)
 		{
@@ -729,7 +721,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		else
 		{
 			// Just hide the children to avoid dispatching a lot of events and alloc temporary arrays
-			var l:number = this._displayObjectsVector.length;
+			let l:number = this._displayObjectsVector.length;
 			for(i in 0...l)
 			{
 				this._displayObjectsVector[i].alpha=0;
@@ -743,18 +735,18 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 			}
 		}
 
-		var frames:Array<CAnimationFrame>=this._config.animationConfigFrames.frames;
+		let frames:Array<CAnimationFrame>=this._config.animationConfigFrames.frames;
 		if(frames.length>this._currentFrame)
 		{
-			var mc:GAFMovieClip;
-			var objectPivotMatrix:Matrix;
-			var displayObject:IGAFDisplayObject;
-			var instance:CAnimationFrameInstance;
-			var stencilMaskObject:DisplayObject;
+			let mc:GAFMovieClip;
+			let objectPivotMatrix:Matrix;
+			let displayObject:IGAFDisplayObject;
+			let instance:CAnimationFrameInstance;
+			let stencilMaskObject:DisplayObject;
 
-			var animationObjectsDictionary:Map<String,CAnimationObject>=this._config.animationObjects.animationObjectsDictionary;
-			var frameConfig:CAnimationFrame=frames[this._currentFrame];
-			var instances:Array<CAnimationFrameInstance>=frameConfig.instances;
+			let animationObjectsDictionary:Map<string,CAnimationObject>=this._config.animationObjects.animationObjectsDictionary;
+			let frameConfig:CAnimationFrame=frames[this._currentFrame];
+			let instances:Array<CAnimationFrameInstance>=frameConfig.instances;
 			l=instances.length;
 			i=0;
 			while(i<l)
@@ -831,17 +823,17 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 
 						if(DebugUtility.RENDERING_DEBUG && Std.is(displayObject,IGAFDebug))
 						{
-							var colors:Array<number>=DebugUtility.getRenderingDifficultyColor(instance, this._alphaLessMax, this._masked, this._hasFilter);
+							let colors:Array<number>=DebugUtility.getRenderingDifficultyColor(instance, this._alphaLessMax, this._masked, this._hasFilter);
 							cast(displayObject,IGAFDebug).debugColors=colors;
 						}
 					}
 					else
 					{
 					
-						var maskObject:IGAFDisplayObject=this._displayObjectsDictionary[instance.id];
+						let maskObject:IGAFDisplayObject=this._displayObjectsDictionary[instance.id];
 						if(maskObject!=null)
 						{
-							var maskInstance:CAnimationFrameInstance=frameConfig.getInstanceByID(instance.id);
+							let maskInstance:CAnimationFrameInstance=frameConfig.getInstanceByID(instance.id);
 							if(maskInstance!=null)
 							{
 								this.getTransformMatrix(maskObject, GAFContainer.HELPER_MATRIX);
@@ -882,11 +874,11 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		{
 			//TODO renderDebug
 			trace ("TODO renderDebug");
-			//var hasFilter:boolean=(instance.filter !=null)|| _hasFilter;
-			////var alphaLessMax:boolean=instance.alpha<GAF.maxAlpha || _alphaLessMax;
-			//var alphaLessMax:boolean=instance.alpha<GAF.maxAlpha || _alphaLessMax;
+			//let hasFilter:boolean=(instance.filter !=null)|| _hasFilter;
+			////let alphaLessMax:boolean=instance.alpha<GAF.maxAlpha || _alphaLessMax;
+			//let alphaLessMax:boolean=instance.alpha<GAF.maxAlpha || _alphaLessMax;
 			//
-			//var changed:boolean=false;
+			//let changed:boolean=false;
 			//if(mc._alphaLessMax !=alphaLessMax)
 			//{
 				//mc._alphaLessMax=alphaLessMax;
@@ -914,7 +906,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		//TODO addDebugRegions
 		trace ("TODO addDebugRegions");
 		
-		//var debugView:Quad;
+		//let debugView:Quad;
 		//for (debugRegion in _config.debugRegions)
 		//{
 			//switch(debugRegion.type)
@@ -944,7 +936,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		this._currentTime=0;
 		this._lastFrameTime=0;
 
-		var i:number=this._mcVector.length;
+		let i:number=this._mcVector.length;
 		while(i-->0)
 		{
 			this._mcVector[i].reset();
@@ -953,8 +945,8 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 	
 	private initialize(textureAtlas:CTextureAtlas, gafAsset:GAFAsset):void
 	{
-		this._displayObjectsDictionary=new Map<String,IGAFDisplayObject>();
-		this._stencilMasksDictionary=new Map<String,DisplayObject>();
+		this._displayObjectsDictionary=new Map<string,IGAFDisplayObject>();
+		this._stencilMasksDictionary=new Map<string,DisplayObject>();
 		this._displayObjectsVector=[];
 		this._imagesVector=[];
 		this._mcVector=[];
@@ -963,9 +955,9 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		this._totalFrames = this._config.framesCount;
 		this.fps=this._config.stageConfig!=null ? this._config.stageConfig.fps: 60;
 
-		var animationObjectsDictionary:Map<String,CAnimationObject>=this._config.animationObjects.animationObjectsDictionary;
+		let animationObjectsDictionary:Map<string,CAnimationObject>=this._config.animationObjects.animationObjectsDictionary;
 
-		var displayObject:DisplayObject=null;
+		let displayObject:DisplayObject=null;
 		
 		for (animationObjectConfig in animationObjectsDictionary)
 		{
@@ -974,7 +966,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 			{
 				case CAnimationObject.TYPE_TEXTURE:
 					
-					var texture:IGAFTexture = textureAtlas.getTexture(animationObjectConfig.regionID);
+					let texture:IGAFTexture = textureAtlas.getTexture(animationObjectConfig.regionID);
 					
 					if(Std.is(texture, GAFScale9Texture) && !animationObjectConfig.mask)// GAFScale9Image doesn't work as mask
 					{
@@ -988,16 +980,16 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 						cast(displayObject,GAFImage).textureSmoothing=this._smoothing;
 					}
 				case CAnimationObject.TYPE_TEXTFIELD:
-					var tfObj:CTextFieldObject=this._config.textFields.textFieldObjectsDictionary[animationObjectConfig.regionID];
+					let tfObj:CTextFieldObject=this._config.textFields.textFieldObjectsDictionary[animationObjectConfig.regionID];
 					displayObject = new GAFTextField(tfObj, this._scale, this._contentScaleFactor);
 				case CAnimationObject.TYPE_TIMELINE:
-					var timeline:GAFTimeline=gafAsset.getGAFTimelineByID(animationObjectConfig.regionID);
+					let timeline:GAFTimeline=gafAsset.getGAFTimelineByID(animationObjectConfig.regionID);
 					displayObject=new GAFMovieClip(timeline, Std.int(this.fps), false);
 			}
 
 			if(animationObjectConfig.maxSize!=null && Std.is(displayObject,IMaxSize))
 			{
-				var maxSize:Point=new Point(
+				let maxSize:Point=new Point(
 						animationObjectConfig.maxSize.x * this._scale,
 						animationObjectConfig.maxSize.y * this._scale);
 				cast(displayObject,IMaxSize).maxSize=maxSize;
@@ -1011,7 +1003,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 
 			if(this._config.namedParts !=null)
 			{
-				var instanceName:string=this._config.namedParts[animationObjectConfig.instanceID];
+				let instanceName:string=this._config.namedParts[animationObjectConfig.instanceID];
 				if (instanceName != null)
 				{
 					if(!Reflect.hasField(this, instanceName))
@@ -1059,7 +1051,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		////bounds
 		//if(bounds.width>0 &&  bounds.height>0)
 		//{
-			//var quad:Quad=new Quad(bounds.width * _scale, 2, 0xff0000);
+			//let quad:Quad=new Quad(bounds.width * _scale, 2, 0xff0000);
 			//quad.x=bounds.x * _scale;
 			//quad.y=bounds.y * _scale;
 			//_boundsAndPivot.addMesh(quad);
@@ -1127,12 +1119,12 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		
 		//if(dispose)
 		//{
-			//var key:string;
-			//var instanceName:string;
-			//var child:DisplayObject=getChildAt(index);
+			//let key:string;
+			//let instanceName:string;
+			//let child:DisplayObject=getChildAt(index);
 			//if(Std.is(child, IGAFDisplayObject))
 			//{
-				//var id:number=_mcVector.indexOf(cast(child,GAFMovieClip));
+				//let id:number=_mcVector.indexOf(cast(child,GAFMovieClip));
 				//if(id>=0)
 				//{
 					//_mcVector.splice(id, 1);
@@ -1198,7 +1190,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 	/** Returns a child object with a certain name(non-recursively). */
 	override getChildByName(name:string):DisplayObject
 	{
-		var numChildren:number=this._displayObjectsVector.length;
+		let numChildren:number=this._displayObjectsVector.length;
 		for(i in 0...numChildren)
 			if(this._displayObjectsVector[i].name==name)
 				return cast(this._displayObjectsVector[i],DisplayObject);
@@ -1221,7 +1213,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		}
 		stop();
 
-		var l:number=this._displayObjectsVector.length;
+		let l:number=this._displayObjectsVector.length;
 		for(i in 0...l)
 		{
 			this._displayObjectsVector[i].destroy();
@@ -1282,7 +1274,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 			{
 				this._currentFrame=this._reverse ? this._finalFrame:this._startFrame;
 				this._lastFrameTime +=this._frameDuration;
-				var resetInvisibleChildren:boolean=true;
+				let resetInvisibleChildren:boolean=true;
 			}
 		}
 
@@ -1312,7 +1304,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		//if(resetInvisibleChildren)
 		//{
 			////reset timelines that aren't visible
-			//var i:number=_mcVector.length;
+			//let i:number=_mcVector.length;
 			//while(i-->0)
 			//{
 				//if(_mcVector[i]._hidden)
@@ -1377,7 +1369,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 		//{
 			//_smoothing=value;
 //
-			//var i:number=_imagesVector.length;
+			//let i:number=_imagesVector.length;
 			//while(i-->0)
 			//{
 				//_imagesVector[i].textureSmoothing=_smoothing;
@@ -1439,7 +1431,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 			this._frameDuration=1 / value;
 		}
 
-		var i:number=this._mcVector.length;
+		let i:number=this._mcVector.length;
 		while(i-->0)
 		{
 			this._mcVector[i].fps=value;
@@ -1460,7 +1452,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 	{
 		this._reverse=value;
 
-		var i:number=this._mcVector.length;
+		let i:number=this._mcVector.length;
 		while(i-->0)
 		{
 			this._mcVector[i]._reverse=value;
@@ -1482,7 +1474,7 @@ export default class GAFMovieClip extends GAFContainer implements IAnimatable
 	{
 		this._skipFrames=value;
 
-		var i:number=this._mcVector.length;
+		let i:number=this._mcVector.length;
 		while(i-->0)
 		{
 			this._mcVector[i]._skipFrames=value;

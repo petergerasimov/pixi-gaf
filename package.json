@@ -35,5 +35,8 @@
     "prettier": "2.7.1",
     "typescript": "^4.7.4",
     "watchify": "^4.0.0"
+  },
+  "dependencies": {
+    "bufferutility": "^2.2.3"
   }
 }

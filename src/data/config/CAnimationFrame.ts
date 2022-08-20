@@ -18,7 +18,7 @@ export default class CAnimationFrame
 	// PRIVATE VARIABLES
 	//
 	// --------------------------------------------------------------------------
-	private _instancesDictionary:Map<String,CAnimationFrameInstance>;
+	private _instancesDictionary:Map<string,CAnimationFrameInstance>;
 	private _instances:Array<CAnimationFrameInstance>;
 	private _actions:Array<CFrameAction>;
 
@@ -33,7 +33,7 @@ export default class CAnimationFrame
 	{
 		this._frameNumber=frameNumber;
 
-		this._instancesDictionary=new Map<String,CAnimationFrameInstance>();
+		this._instancesDictionary=new Map<string,CAnimationFrameInstance>();
 		this._instances=[];
 	}
 

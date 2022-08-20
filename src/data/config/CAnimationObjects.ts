@@ -19,7 +19,7 @@ export default class CAnimationObjects
 	//
 	// --------------------------------------------------------------------------
 
-	private _animationObjectsDictionary:Map<String,CAnimationObject>;
+	private _animationObjectsDictionary:Map<string,CAnimationObject>;
 
 	// --------------------------------------------------------------------------
 	//
@@ -29,7 +29,7 @@ export default class CAnimationObjects
 
 	constructor()
 	{
-		this._animationObjectsDictionary=new Map<String,CAnimationObject>();
+		this._animationObjectsDictionary=new Map<string,CAnimationObject>();
 	}
 
 	// --------------------------------------------------------------------------
@@ -83,7 +83,7 @@ export default class CAnimationObjects
 	// --------------------------------------------------------------------------
 
 	
- 	get animationObjectsDictionary():Map<String,CAnimationObject>
+ 	get animationObjectsDictionary():Map<string,CAnimationObject>
 	{
 		return this._animationObjectsDictionary;
 	}

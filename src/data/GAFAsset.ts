@@ -42,8 +42,8 @@ export default class GAFAsset
 	private _config:GAFAssetConfig;
 
 	private _timelines:Array<GAFTimeline>;
-	private _timelinesDictionary:Map<String,GAFTimeline>=new Map<String,GAFTimeline>();
-	private _timelinesByLinkage:Map<String,GAFTimeline>=new Map<String,GAFTimeline>();
+	private _timelinesDictionary:Map<string,GAFTimeline>=new Map<string,GAFTimeline>();
+	private _timelinesByLinkage:Map<string,GAFTimeline>=new Map<string,GAFTimeline>();
 
 	private _scale:number;
 	private _csf:number;

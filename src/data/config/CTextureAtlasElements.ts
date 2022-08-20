@@ -20,8 +20,8 @@ export default class CTextureAtlasElements
 	// --------------------------------------------------------------------------
 
 	private _elementsVector:Array<CTextureAtlasElement>;
-	private _elementsDictionary:Map<String,CTextureAtlasElement>;
-	private _elementsByLinkage:Map<String,CTextureAtlasElement>;
+	private _elementsDictionary:Map<string,CTextureAtlasElement>;
+	private _elementsByLinkage:Map<string,CTextureAtlasElement>;
 
 	// --------------------------------------------------------------------------
 	//
@@ -32,8 +32,8 @@ export default class CTextureAtlasElements
 	constructor()
 	{
 		this._elementsVector=[];
-		this._elementsDictionary=new Map<String,CTextureAtlasElement>();
-		this._elementsByLinkage=new Map<String,CTextureAtlasElement>();
+		this._elementsDictionary=new Map<string,CTextureAtlasElement>();
+		this._elementsByLinkage=new Map<string,CTextureAtlasElement>();
 	}
 
 	// --------------------------------------------------------------------------

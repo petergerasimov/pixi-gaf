@@ -26,7 +26,7 @@ export default class CTextureAtlas
 	//
 	// --------------------------------------------------------------------------
 
-	private _textureAtlasesDictionary:Map<String,TextureAtlas>;
+	private _textureAtlasesDictionary:Map<string,TextureAtlas>;
 	private _textureAtlasConfig:CTextureAtlasCSF;
 
 	// --------------------------------------------------------------------------
@@ -35,7 +35,7 @@ export default class CTextureAtlas
 	//
 	// --------------------------------------------------------------------------
 
-	constructor(textureAtlasesDictionary:Map<String,TextureAtlas>, textureAtlasConfig:CTextureAtlasCSF)
+	constructor(textureAtlasesDictionary:Map<string,TextureAtlas>, textureAtlasConfig:CTextureAtlasCSF)
 	{
 		this._textureAtlasesDictionary=textureAtlasesDictionary;
 		this._textureAtlasConfig=textureAtlasConfig;
@@ -47,9 +47,9 @@ export default class CTextureAtlas
 	//
 	// --------------------------------------------------------------------------
 
-	public static createFromTextures(texturesDictionary:Map<String,TextureWrapper>,textureAtlasConfig:CTextureAtlasCSF):CTextureAtlas
+	public static createFromTextures(texturesDictionary:Map<string,TextureWrapper>,textureAtlasConfig:CTextureAtlasCSF):CTextureAtlas
 	{
-		const atlasesDictionary:Map<String,TextureAtlas>=new Map<String,TextureAtlas>();
+		const atlasesDictionary:Map<string,TextureAtlas>=new Map<string,TextureAtlas>();
 
 		let atlas:TextureAtlas;
 

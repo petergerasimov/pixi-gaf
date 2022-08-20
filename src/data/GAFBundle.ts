@@ -28,7 +28,7 @@ export default class GAFBundle
 	private _name:string;
 	private _soundData:GAFSoundData;
 	private _gafAssets:Array<GAFAsset>;
-	private _gafAssetsDictionary:Map<String,GAFAsset>;// GAFAsset by SWF name
+	private _gafAssetsDictionary:Map<string,GAFAsset>;// GAFAsset by SWF name
 
 	// --------------------------------------------------------------------------
 	//
@@ -39,7 +39,7 @@ export default class GAFBundle
 	constructor()
 	{
 		this._gafAssets=[];
-		this._gafAssetsDictionary=new Map<String,GAFAsset>();
+		this._gafAssetsDictionary=new Map<string,GAFAsset>();
 	}
 
 	// --------------------------------------------------------------------------

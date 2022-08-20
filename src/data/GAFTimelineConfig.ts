@@ -49,12 +49,12 @@ export default class GAFTimelineConfig
 	private _animationSequences:CAnimationSequences;
 	private _textFields:CTextFieldObjects;
 
-	private _namedParts:Map<String,String>;
+	private _namedParts:Map<string,string>;
 	private _linkage:string;
 
 	private _debugRegions:Array<GAFDebugInformation>;
 
-	private _warnings:Array<String>;
+	private _warnings:Array<string>;
 	private _framesCount:number=0;
 	private _bounds:Rectangle;
 	private _pivot:Point;
@@ -267,7 +267,7 @@ export default class GAFTimelineConfig
 	}
 
 	
- 	get warnings():Array<String>
+ 	get warnings():Array<string>
 	{
 		return this._warnings;
 	}
@@ -295,12 +295,12 @@ export default class GAFTimelineConfig
 	}
 
 	
- 	get namedParts():Map<String,String>
+ 	get namedParts():Map<string,string>
 	{
 		return this._namedParts;
 	}
 
-	set namedParts(value:Map<String,String>)
+	set namedParts(value:Map<string,string>)
 	{
 		this._namedParts=value;
 	}

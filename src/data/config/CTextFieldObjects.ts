@@ -20,7 +20,7 @@ export default class CTextFieldObjects
 	//
 	// --------------------------------------------------------------------------
 
-	private _textFieldObjectsDictionary:Map<String,CTextFieldObject>;
+	private _textFieldObjectsDictionary:Map<string,CTextFieldObject>;
 
 	// --------------------------------------------------------------------------
 	//
@@ -30,7 +30,7 @@ export default class CTextFieldObjects
 
 	constructor()
 	{
-		this._textFieldObjectsDictionary=new Map<String,CTextFieldObject>();
+		this._textFieldObjectsDictionary=new Map<string,CTextFieldObject>();
 	}
 
 	// --------------------------------------------------------------------------
@@ -84,7 +84,7 @@ export default class CTextFieldObjects
 	// --------------------------------------------------------------------------
 
 	
- 	get textFieldObjectsDictionary():Map<String,CTextFieldObject>
+ 	get textFieldObjectsDictionary():Map<string,CTextFieldObject>
 	{
 		return this._textFieldObjectsDictionary;
 	}

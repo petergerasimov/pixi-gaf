@@ -36,8 +36,8 @@ export default class GAFGFXData extends utils.EventEmitter
 	//
 	// --------------------------------------------------------------------------
 
-	private _texturesDictionary:Map<String,Map<String,Map<String,TextureWrapper>>>= new Map<String,Map<String,Map<String,TextureWrapper>>>();
-	private _taGFXDictionary:Map<String,Map<String,Map<String,ITAGFX>>> = new Map<String,Map<String,Map<String,ITAGFX>>>();
+	private _texturesDictionary:Map<string,Map<string,Map<string,TextureWrapper>>>= new Map<string,Map<string,Map<string,TextureWrapper>>>();
+	private _taGFXDictionary:Map<string,Map<string,Map<string,ITAGFX>>> = new Map<string,Map<string,Map<string,ITAGFX>>>();
 
 	private _textureLoadersSet:Map<ITAGFX,ITAGFX>=new Map<ITAGFX,ITAGFX>();
 
@@ -61,18 +61,18 @@ export default class GAFGFXData extends utils.EventEmitter
 	addTAGFX(scale:number, csf:number, imageID:string, taGFX:ITAGFX):void
 	{
 		
-		const lScale:string = String(scale);
-		const lCsf:string = String(csf);
+		const lScale:string = string(scale);
+		const lCsf:string = string(csf);
 		
-		if (this._taGFXDictionary[lScale]==null) this._taGFXDictionary[lScale]=new Map<String,Map<String,ITAGFX>>();
-		if (this._taGFXDictionary[lScale][lCsf]==null) this._taGFXDictionary[lScale][lCsf]=new Map<String,ITAGFX>();
+		if (this._taGFXDictionary[lScale]==null) this._taGFXDictionary[lScale]=new Map<string,Map<string,ITAGFX>>();
+		if (this._taGFXDictionary[lScale][lCsf]==null) this._taGFXDictionary[lScale][lCsf]=new Map<string,ITAGFX>();
 		if (this._taGFXDictionary[lScale][lCsf][imageID]==null) this._taGFXDictionary[lScale][lCsf][imageID]=taGFX;
 	}
 
-	getTAGFXs(scale:number, csf:number):Map<String,ITAGFX>
+	getTAGFXs(scale:number, csf:number):Map<string,ITAGFX>
 	{
-		const lScale:string = String(scale);
-		const lCsf:string = String(csf);
+		const lScale:string = string(scale);
+		const lCsf:string = string(csf);
 		
 		if(this._taGFXDictionary!=null)
 		{
@@ -87,8 +87,8 @@ export default class GAFGFXData extends utils.EventEmitter
 
 	getTAGFX(scale:number, csf:number, imageID:string):ITAGFX
 	{
-		const lScale:string = String(scale);
-		const lCsf:string = String(csf);
+		const lScale:string = string(scale);
+		const lCsf:string = string(csf);
 		
 		if(this._taGFXDictionary!=null)
 		{
@@ -107,13 +107,13 @@ export default class GAFGFXData extends utils.EventEmitter
 	// Creates textures from all images for specified scale and csf.
 	createTextures(scale:number, csf:number):boolean
 	{
-		const taGFXs:Map<String,ITAGFX>=this.getTAGFXs(scale, csf);
+		const taGFXs:Map<string,ITAGFX>=this.getTAGFXs(scale, csf);
 		if(taGFXs!=null)
 		{
-			const lScale:string = String(scale);
-			const lCsf:string = String(csf);
-			if (this._texturesDictionary[lScale]==null) this._texturesDictionary[lScale]=new Map<String,Map<String,TextureWrapper>>();
-			if (this._texturesDictionary[lScale][lCsf]==null) this._texturesDictionary[lScale][lCsf] =new Map<String,TextureWrapper>();
+			const lScale:string = string(scale);
+			const lCsf:string = string(csf);
+			if (this._texturesDictionary[lScale]==null) this._texturesDictionary[lScale]=new Map<string,Map<string,TextureWrapper>>();
+			if (this._texturesDictionary[lScale][lCsf]==null) this._texturesDictionary[lScale][lCsf] =new Map<string,TextureWrapper>();
 
 			for(const imageAtlasID in taGFXs)
 			{
@@ -134,10 +134,10 @@ export default class GAFGFXData extends utils.EventEmitter
 		const taGFX:ITAGFX=this.getTAGFX(scale, csf, imageID);
 		if(taGFX!=null)
 		{
-			const lScale:string = String(scale);
-			const lCsf:string = String(csf);
-			if (this._texturesDictionary[lScale]==null) this._texturesDictionary[lScale]=new Map<String,Map<String,TextureWrapper>>();
-			if (this._texturesDictionary[lScale][lCsf]==null) this._texturesDictionary[lScale][lCsf] =new Map<String,TextureWrapper>();
+			const lScale:string = string(scale);
+			const lCsf:string = string(csf);
+			if (this._texturesDictionary[lScale]==null) this._texturesDictionary[lScale]=new Map<string,Map<string,TextureWrapper>>();
+			if (this._texturesDictionary[lScale][lCsf]==null) this._texturesDictionary[lScale][lCsf] =new Map<string,TextureWrapper>();
 
 			this.addTexture(this._texturesDictionary[lScale][lCsf], taGFX, imageID);
 
@@ -150,8 +150,8 @@ export default class GAFGFXData extends utils.EventEmitter
 	// Returns texture by unique key consist of scale + csf + imageID
 	getTexture(scale:number, csf:number, imageID:string):TextureWrapper
 	{
-		const lScale:string = String(scale);
-		const lCsf:string = String(csf);
+		const lScale:string = string(scale);
+		const lCsf:string = string(csf);
 		if(this._texturesDictionary!=null)
 		{
 			
@@ -179,11 +179,11 @@ export default class GAFGFXData extends utils.EventEmitter
 	}
 
 	// Returns textures for specified scale and csf in Dynamic as combination key-value where key - is imageID and value - is Texture
-	getTextures(scale:number, csf:number):Map<String,TextureWrapper>
+	getTextures(scale:number, csf:number):Map<string,TextureWrapper>
 	{
 		
-		const lScale:string = String(scale);
-		const lCsf:string = String(csf);
+		const lScale:string = string(scale);
+		const lCsf:string = string(csf);
 		if(this._texturesDictionary!=null)
 		{
 			if(this._texturesDictionary[lScale]!=null)
@@ -249,7 +249,7 @@ export default class GAFGFXData extends utils.EventEmitter
 	//
 	// --------------------------------------------------------------------------
 
-	private addTexture(dictionary:Map<String,TextureWrapper>, tagfx:ITAGFX, imageID:string):void
+	private addTexture(dictionary:Map<string,TextureWrapper>, tagfx:ITAGFX, imageID:string):void
 	{
 		
 		if(DebugUtility.RENDERING_DEBUG)

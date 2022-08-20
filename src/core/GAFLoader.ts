@@ -1,4 +1,5 @@
-import { Loader, Resource } from "pixi.js";
+import { IAddOptions, Loader, LoaderResource } from "pixi.js";
+import GAFBytesInput from "../utils/GAFBytesInput";
 
 /**
  * Loader of GAF resources
@@ -7,7 +8,7 @@ import { Loader, Resource } from "pixi.js";
 export default class GAFLoader extends Loader
 {
 
-	names:Array<String>=[];
+	names:Array<string>=[];
 	contents:Array<GAFBytesInput>=[];
 
 
@@ -19,7 +20,7 @@ export default class GAFLoader extends Loader
 	addGAFFile (pUrl:string):void
 	{
 		if (pUrl.substring(pUrl.length-4) != ".gaf") throw new Error("GAFLoader supports only .gaf files");
-		this.add(pUrl,{loadType: 1,xhrType:"arraybuffer"});
+		this.add({ url: pUrl, loadType: 1,xhrType:"arraybuffer"} as IAddOptions);
 	}
 
 	override load (cb?:any)
@@ -28,10 +29,10 @@ export default class GAFLoader extends Loader
 		return super.load();
 	}
 
-	private parseData(pResource:Resource, pNext:() => void): void
+	private parseData(pResource:LoaderResource, pNext:() => void): void
 	{
-		this.names.push(pResource.src);
-		const lBytes:Bytes = Bytes.ofData(pResource.data);
+		this.names.push(pResource.url);
+		const lBytes = new Uint8Array(pResource.data);
 		this.contents.push(new GAFBytesInput(lBytes, 0, lBytes.length));
 		pNext();
 	}

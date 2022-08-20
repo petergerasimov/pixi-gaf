@@ -22,7 +22,7 @@ export default interface IGAFTexture
 
 	/**
 	* An numberernal identifier of the region in a texture atlas.
-	* @return a String identifier
+	* @return a string identifier
 	*/
 	id:string;
 

@@ -7,7 +7,7 @@ export default class CFrameAction
 {
 	type:number=0;
 	scope:string;
-	params:Array<String>=[];
+	params:Array<string>=[];
 	
 	public static STOP:number=0;
 	public static PLAY:number=1;

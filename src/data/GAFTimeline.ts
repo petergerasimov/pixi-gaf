@@ -114,7 +114,7 @@ export default class GAFTimeline
 			return;
 		}
 
-		let textures:Map<String,TextureWrapper>;
+		let textures:Map<string,TextureWrapper>;
 		let csfConfig:CTextureAtlasCSF;
 
 		switch(content)
