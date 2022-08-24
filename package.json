@@ -39,6 +39,7 @@
   "dependencies": {
     "@pixi/math": "^6.5.1",
     "@pixi/math-extras": "^6.5.1",
+    "@types/node": "^18.7.13",
     "bufferutility": "^2.2.3"
   }
 }

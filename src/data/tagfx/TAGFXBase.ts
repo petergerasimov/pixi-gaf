@@ -40,7 +40,7 @@ export default class TAGFXBase extends utils.EventEmitter implements ITAGFX
 	private _textureSize:Point;
 	private _textureScale:number=-1;
 	private _textureFormat:string;
-	protected _source:any;
+	protected _source:string;
 	private _clearSourceAfterTextureCreated:boolean=false;
 	private _isReady:boolean=false;
 

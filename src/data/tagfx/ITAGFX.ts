@@ -18,7 +18,7 @@ export default interface ITAGFX extends utils.EventEmitter
 	
  	sourceType:string;
 	
- 	source:any;
+ 	source:string;
 	
  	ready:boolean;
 }

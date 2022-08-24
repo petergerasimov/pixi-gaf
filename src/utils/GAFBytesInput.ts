@@ -8,7 +8,7 @@ export default class GAFBytesInput extends BufferUtility {
 	bigEndian = false;
 	constructor(b: ArrayBuffer, pos = 0, len?:number) 
 	{
-		super(b.slice(0, len));
+		super(b.slice(0, len) as Buffer);
 		this.position = pos;
 	}
 	

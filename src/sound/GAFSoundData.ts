@@ -1,4 +1,5 @@
 import CSound from "../data/config/CSound";
+import GAFBytesInput from "../utils/GAFBytesInput";
 
 /**
  * TODO

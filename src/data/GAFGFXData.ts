@@ -39,7 +39,7 @@ export default class GAFGFXData extends utils.EventEmitter
 	private _texturesDictionary:Map<string,Map<string,Map<string,TextureWrapper>>>= new Map<string,Map<string,Map<string,TextureWrapper>>>();
 	private _taGFXDictionary:Map<string,Map<string,Map<string,ITAGFX>>> = new Map<string,Map<string,Map<string,ITAGFX>>>();
 
-	private _textureLoadersSet:Map<ITAGFX,ITAGFX>=new Map<ITAGFX,ITAGFX>();
+	private _textureLoadersSet:Map<string,ITAGFX>=new Map<string,ITAGFX>();
 
 	// --------------------------------------------------------------------------
 	//
@@ -61,8 +61,8 @@ export default class GAFGFXData extends utils.EventEmitter
 	addTAGFX(scale:number, csf:number, imageID:string, taGFX:ITAGFX):void
 	{
 		
-		const lScale:string = string(scale);
-		const lCsf:string = string(csf);
+		const lScale:string = String(scale);
+		const lCsf:string = String(csf);
 		
 		if (this._taGFXDictionary[lScale]==null) this._taGFXDictionary[lScale]=new Map<string,Map<string,ITAGFX>>();
 		if (this._taGFXDictionary[lScale][lCsf]==null) this._taGFXDictionary[lScale][lCsf]=new Map<string,ITAGFX>();
@@ -71,8 +71,8 @@ export default class GAFGFXData extends utils.EventEmitter
 
 	getTAGFXs(scale:number, csf:number):Map<string,ITAGFX>
 	{
-		const lScale:string = string(scale);
-		const lCsf:string = string(csf);
+		const lScale:string = String(scale);
+		const lCsf:string = String(csf);
 		
 		if(this._taGFXDictionary!=null)
 		{
@@ -87,8 +87,8 @@ export default class GAFGFXData extends utils.EventEmitter
 
 	getTAGFX(scale:number, csf:number, imageID:string):ITAGFX
 	{
-		const lScale:string = string(scale);
-		const lCsf:string = string(csf);
+		const lScale:string = String(scale);
+		const lCsf:string = String(csf);
 		
 		if(this._taGFXDictionary!=null)
 		{
@@ -110,8 +110,8 @@ export default class GAFGFXData extends utils.EventEmitter
 		const taGFXs:Map<string,ITAGFX>=this.getTAGFXs(scale, csf);
 		if(taGFXs!=null)
 		{
-			const lScale:string = string(scale);
-			const lCsf:string = string(csf);
+			const lScale:string = String(scale);
+			const lCsf:string = String(csf);
 			if (this._texturesDictionary[lScale]==null) this._texturesDictionary[lScale]=new Map<string,Map<string,TextureWrapper>>();
 			if (this._texturesDictionary[lScale][lCsf]==null) this._texturesDictionary[lScale][lCsf] =new Map<string,TextureWrapper>();
 
@@ -134,8 +134,8 @@ export default class GAFGFXData extends utils.EventEmitter
 		const taGFX:ITAGFX=this.getTAGFX(scale, csf, imageID);
 		if(taGFX!=null)
 		{
-			const lScale:string = string(scale);
-			const lCsf:string = string(csf);
+			const lScale:string = String(scale);
+			const lCsf:string = String(csf);
 			if (this._texturesDictionary[lScale]==null) this._texturesDictionary[lScale]=new Map<string,Map<string,TextureWrapper>>();
 			if (this._texturesDictionary[lScale][lCsf]==null) this._texturesDictionary[lScale][lCsf] =new Map<string,TextureWrapper>();
 
@@ -150,8 +150,8 @@ export default class GAFGFXData extends utils.EventEmitter
 	// Returns texture by unique key consist of scale + csf + imageID
 	getTexture(scale:number, csf:number, imageID:string):TextureWrapper
 	{
-		const lScale:string = string(scale);
-		const lCsf:string = string(csf);
+		const lScale:string = String(scale);
+		const lCsf:string = String(csf);
 		if(this._texturesDictionary!=null)
 		{
 			
@@ -182,8 +182,8 @@ export default class GAFGFXData extends utils.EventEmitter
 	getTextures(scale:number, csf:number):Map<string,TextureWrapper>
 	{
 		
-		const lScale:string = string(scale);
-		const lCsf:string = string(csf);
+		const lScale:string = String(scale);
+		const lCsf:string = String(csf);
 		if(this._texturesDictionary!=null)
 		{
 			if(this._texturesDictionary[lScale]!=null)
@@ -280,7 +280,7 @@ export default class GAFGFXData extends utils.EventEmitter
 		{
 			if(!tagfx.ready)
 			{
-				this._textureLoadersSet[tagfx] = tagfx;
+				this._textureLoadersSet[tagfx.source] = tagfx;
 				tagfx.on(TAGFXBase.EVENT_TYPE_TEXTURE_READY, this.onTextureReady);
 			}
 
@@ -319,7 +319,7 @@ export default class GAFGFXData extends utils.EventEmitter
 		const tagfx:ITAGFX = event.target;
 		tagfx.off(TAGFXBase.EVENT_TYPE_TEXTURE_READY, this.onTextureReady);
 
-		this._textureLoadersSet.delete(tagfx);
+		this._textureLoadersSet.delete(tagfx.source);
 
 		if(this.isTexturesReady)
 			this.emit(GAFGFXData.EVENT_TYPE_TEXTURES_READY);
