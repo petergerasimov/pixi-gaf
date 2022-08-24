@@ -37,6 +37,8 @@
     "watchify": "^4.0.0"
   },
   "dependencies": {
+    "@pixi/math": "^6.5.1",
+    "@pixi/math-extras": "^6.5.1",
     "bufferutility": "^2.2.3"
   }
 }

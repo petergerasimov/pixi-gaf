@@ -1,4 +1,7 @@
-import { utils, Rectangle, Matrix, Point, TextStyle } from "pixi.js";
+import { utils, Matrix, Point, TextStyle, TextStyleAlign } from "pixi.js";
+import { Rectangle } from "@pixi/math";
+// eslint-disable-next-line no-unused-vars
+import mathExtras from "@pixi/math-extras";
 import { GAFEvent } from "../../events/GAFEvent";
 import TextFormatAlign from "../../text/TextFormatAlign";
 import GAFBytesInput from "../../utils/GAFBytesInput";
@@ -23,17 +26,18 @@ import GAFAssetConfig from "../GAFAssetConfig";
 import GAFTimelineConfig from "../GAFTimelineConfig";
 import ErrorConstants from "./ErrorConstants";
 import WarningConstants from "./WarningConstants";
+import { EventEmitterUtility } from "../../utils/EventEmitterUtility";
 
 /**
  * TODO
  * @author Mathieu Anthoine
  */
-class BinGAFAssetConfigConverter extends utils.EventEmitter
+export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 {
 
 	private static SIGNATURE_GAC:number=0x00474143;	
 	
-	//tags
+	// tags
 	private static TAG_END:number=0;
 	private static TAG_DEFINE_ATLAS:number=1;
 	private static TAG_DEFINE_ANIMATION_MASKS:number=2;
@@ -51,7 +55,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	private static TAG_DEFINE_SOUNDS:number=14;// v5.0
 	private static TAG_DEFINE_ATLAS3:number=15;// v5.0
 
-	//filters
+	// filters
 	private static FILTER_DROP_SHADOW:number=0;
 	private static FILTER_BLUR:number=1;
 	private static FILTER_GLOW:number=2;
@@ -77,7 +81,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	//
 	//  PUBLIC METHODS
 	//
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	constructor(assetID:string, bytes:GAFBytesInput)
 	{
 		super();
@@ -99,11 +103,11 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 		}
 	}
 
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	//
 	//  PRIVATE METHODS
 	//
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	private parseStart():void
 	{
@@ -118,9 +122,9 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 		
 		if(this._config.versionMajor>GAFAssetConfig.MAX_VERSION)
 		{
-			//TODO: verifier le systeme de diffusion de message (qui les écoute, les centralise)
+			// TODO: verifier le systeme de diffusion de message (qui les écoute, les centralise)
 			this.emit(GAFEvent.ERROR,WarningConstants.UNSUPPORTED_FILE + "Library version:" + GAFAssetConfig.MAX_VERSION + ", file version:" + this._config.versionMajor);
-			//dispatchEvent(new anyEvent(ErrorEvent.ERROR, false, false, WarningConstants.UNSUPPORTED_FILE + "Library version:" + GAFAssetConfig.MAX_VERSION + ", file version:" + _config.versionMajor));
+			// dispatchEvent(new anyEvent(ErrorEvent.ERROR, false, false, WarningConstants.UNSUPPORTED_FILE + "Library version:" + GAFAssetConfig.MAX_VERSION + ", file version:" + _config.versionMajor));
 			return;
 		}
 
@@ -128,8 +132,8 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 		{
 			// TODO
 			case BinGAFAssetConfigConverter.SIGNATURE_GAC: 
-				throw "HaxePixiGAF: GAF compressed format not supported yet";
-				//decompressConfig();
+				throw new Error("HaxePixiGAF: GAF compressed format not supported yet");
+				// decompressConfig();
 		}
 
 		if(this._config.versionMajor<4)
@@ -145,16 +149,16 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 		else
 		{
 		
-			var i:number=0;
-			var l:number = this._bytes.readUnsignednumber();
-			for(i in 0...l)
+			let i:number=0;
+			let l:number = this._bytes.readUnsignednumber();
+			for(i = 0; i < l; i++)
 			{
 				this._config.scaleValues.push(this._bytes.readnumber());					
 			}
 			
 			l = this._bytes.readUnsignednumber();
 
-			for(i in 0...l)
+			for(i = 0; i < l; i++)
 			{
 				this._config.csfValues.push(this._bytes.readnumber());
 			}
@@ -167,7 +171,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	{
 		if(timelineConfig.textureAtlas!=null && timelineConfig.textureAtlas.contentScaleFactor.elements!=null)
 		{
-			for(ao in timelineConfig.animationObjects.animationObjectsDictionary)
+			for(const ao of timelineConfig.animationObjects.animationObjectsDictionary.values())
 			{
 				if(ao.type==CAnimationObject.TYPE_TEXTURE && timelineConfig.textureAtlas.contentScaleFactor.elements.getElement(ao.regionID)==null)
 				{
@@ -181,13 +185,13 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	private readNextTag():void
 	{
 		
-		var tagID:number=this._bytes.readShort();
-		var tagLength:number=this._bytes.readUnsignednumber();
+		const tagID:number=this._bytes.readShort();
+		const tagLength:number=this._bytes.readUnsignednumber();
 		
 		switch(tagID)
 		{
 			case BinGAFAssetConfigConverter.TAG_DEFINE_STAGE:
-				this.readStageConfig(this._bytes, this._config);
+				BinGAFAssetConfigConverter.readStageConfig(this._bytes, this._config);
 			case BinGAFAssetConfigConverter.TAG_DEFINE_ATLAS:
 				this.readTextureAtlasConfig(tagID);
 			case BinGAFAssetConfigConverter.TAG_DEFINE_ATLAS2:
@@ -195,13 +199,13 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 			case BinGAFAssetConfigConverter.TAG_DEFINE_ATLAS3:
 				this.readTextureAtlasConfig(tagID);
 			case BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_MASKS:
-				this.readAnimationMasks(tagID, this._bytes, this._currentTimeline);
+				BinGAFAssetConfigConverter.readAnimationMasks(tagID, this._bytes, this._currentTimeline);
 			case BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_MASKS2:
-				this.readAnimationMasks(tagID, this._bytes, this._currentTimeline);
+				BinGAFAssetConfigConverter.readAnimationMasks(tagID, this._bytes, this._currentTimeline);
 			case BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_OBJECTS:
-				this.readAnimationObjects(tagID, this._bytes, this._currentTimeline);
+				BinGAFAssetConfigConverter.readAnimationObjects(tagID, this._bytes, this._currentTimeline);
 			case BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_OBJECTS2:
-				this.readAnimationObjects(tagID, this._bytes, this._currentTimeline);
+				BinGAFAssetConfigConverter.readAnimationObjects(tagID, this._bytes, this._currentTimeline);
 			case BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_FRAMES:
 				this.readAnimationFrames(tagID);
 				return;
@@ -209,17 +213,17 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 				this.readAnimationFrames(tagID);
 				return;
 			case BinGAFAssetConfigConverter.TAG_DEFINE_NAMED_PARTS:
-				this.readNamedParts(this._bytes, this._currentTimeline);
+				BinGAFAssetConfigConverter.readNamedParts(this._bytes, this._currentTimeline);
 			case BinGAFAssetConfigConverter.TAG_DEFINE_SEQUENCES:
-				this.readAnimationSequences(this._bytes, this._currentTimeline);
+				BinGAFAssetConfigConverter.readAnimationSequences(this._bytes, this._currentTimeline);
 			case BinGAFAssetConfigConverter.TAG_DEFINE_TEXT_FIELDS:
-				this.readTextFields(this._bytes, this._currentTimeline);
+				BinGAFAssetConfigConverter.readTextFields(this._bytes, this._currentTimeline);
 			case BinGAFAssetConfigConverter.TAG_DEFINE_SOUNDS:
-				//TODO TAG_DEFINE_SOUNDS
+				// TODO TAG_DEFINE_SOUNDS
 				console.warn("TODO TAG_DEFINE_SOUNDS");
 				if(!this._ignoreSounds)
 				{
-					//readSounds(_bytes, _config);
+					// readSounds(_bytes, _config);
 				}
 				else
 				{
@@ -260,14 +264,14 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private readTimeline():GAFTimelineConfig
 	{
-		var timelineConfig:GAFTimelineConfig=new GAFTimelineConfig(this._config.versionMajor + "." + this._config.versionMinor);
-		timelineConfig.id = Std.string(this._bytes.readUnsignednumber());
+		const timelineConfig:GAFTimelineConfig=new GAFTimelineConfig(this._config.versionMajor + "." + this._config.versionMinor);
+		timelineConfig.id = String(this._bytes.readUnsignednumber());
 		timelineConfig.assetID=this._config.id;
 		timelineConfig.framesCount=this._bytes.readUnsignednumber();
 		timelineConfig.bounds=new Rectangle(this._bytes.readnumber(), this._bytes.readnumber(), this._bytes.readnumber(), this._bytes.readnumber());
 		timelineConfig.pivot=new Point(this._bytes.readnumber(), this._bytes.readnumber());
 		
-		var hasLinkage:boolean= this._bytes.readboolean();
+		const hasLinkage:boolean= this._bytes.readboolean();
 		
 		if(hasLinkage)
 		{
@@ -283,29 +287,29 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private readTextureAtlasConfig(tagID:number):void
 	{
-		var i:number=0;
-		var j:number=0;
+		// const i:number=0;
+		// const j:number=0;
 
-		var scale:number = this._bytes.readnumber();
+		const scale:number = this._bytes.readnumber();
 		
 		if(this._config.scaleValues.indexOf(scale)==-1)
 		{
 			this._config.scaleValues.push(scale);
 		}
 
-		var textureAtlas:CTextureAtlasScale=this.getTextureAtlasScale(scale);
+		const textureAtlas:CTextureAtlasScale=this.getTextureAtlasScale(scale);
 
-		/////////////////////
+		// ///////////////////
 
-		var contentScaleFactor:CTextureAtlasCSF=null;
-		var atlasLength:number = this._bytes.readSByte();
+		let contentScaleFactor:CTextureAtlasCSF=null;
+		const atlasLength:number = this._bytes.readSByte();
 		
-		var atlasID:number=0;
-		var sourceLength:number=0;
-		var csf:number;
-		var source:string;
+		let atlasID:number=0;
+		let sourceLength:number=0;
+		let csf:number;
+		let source:string;
 
-		var elements:CTextureAtlasElements=null;
+		let elements:CTextureAtlasElements=null;
 		if(textureAtlas.allContentScaleFactors.length>0)
 		{
 			elements=textureAtlas.allContentScaleFactors[0].elements;
@@ -316,13 +320,13 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 			elements=new CTextureAtlasElements();
 		}
 
-		for(i in 0...atlasLength)
+		for(let i = 0; i < atlasLength; i++)
 		{
 			atlasID = this._bytes.readUnsignednumber();
 			
 			sourceLength = this._bytes.readSByte();
 			
-			for(j in 0...sourceLength)
+			for(let j = 0; j < sourceLength; j++)
 			{
 				source = this._bytes.readUTF();
 
@@ -335,7 +339,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 
 				contentScaleFactor = this.getTextureAtlasCSF(scale, csf);
 
-				this.updateTextureAtlasSources(contentScaleFactor, Std.string(atlasID), source);
+				this.updateTextureAtlasSources(contentScaleFactor, String(atlasID), source);
 				if(contentScaleFactor.elements==null)
 				{
 					contentScaleFactor.elements=elements;
@@ -343,24 +347,24 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 			}
 		}
 	
-		/////////////////////
+		// ///////////////////
 		
-		var elementsLength:number = this._bytes.readUnsignednumber();
+		const elementsLength:number = this._bytes.readUnsignednumber();
 		
-		var element:CTextureAtlasElement;
-		var hasScale9Grid:boolean=false;
-		var scale9Grid:Rectangle=null;
-		var pivot:Point;
-		var topLeft:Point;
-		var elementScaleX:number=0;
-		var elementScaleY:number=0;
-		var elementWidth:number;
-		var elementHeight:number;
-		var elementAtlasID:number=0;
-		var rotation:boolean=false;
-		var linkageName:string="";
+		let element:CTextureAtlasElement;
+		let hasScale9Grid:boolean=false;
+		let scale9Grid:Rectangle=null;
+		let pivot:Point;
+		let topLeft:Point;
+		let elementScaleX:number=0;
+		let elementScaleY:number=0;
+		let elementWidth:number;
+		let elementHeight:number;
+		let elementAtlasID:number=0;
+		let rotation:boolean=false;
+		let linkageName:string="";
 
-		for(i in 0...elementsLength)
+		for(let i = 0; i < elementsLength; i++)
 		{
 			
 			pivot = new Point(this._bytes.readnumber(), this._bytes.readnumber());	
@@ -401,10 +405,10 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 				linkageName=this._bytes.readUTF();
 			}
 			
-			if(elements.getElement(Std.string(elementAtlasID))==null)
+			if(elements.getElement(String(elementAtlasID))==null)
 			{
-				element=new CTextureAtlasElement(Std.string(elementAtlasID), Std.string(atlasID));
-				element.region=new Rectangle(Std.int(topLeft.x), Std.int(topLeft.y), elementWidth, elementHeight);
+				element=new CTextureAtlasElement(String(elementAtlasID), String(atlasID));
+				element.region=new Rectangle(Number(topLeft.x) | 0, Number(topLeft.y) | 0, elementWidth, elementHeight);
 				element.pivotMatrix = new Matrix(1 / elementScaleX, 0, 0, 1 / elementScaleY, -pivot.x / elementScaleX, -pivot.y / elementScaleY);
 				element.scale9Grid=scale9Grid;
 				element.linkage=linkageName;
@@ -426,10 +430,10 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 					BinGAFAssetConfigConverter.sHelperRectangle.height = elementHeight;
 				}
 				BinGAFAssetConfigConverter.sHelperMatrix.copyFrom(element.pivotMatrix);
-				var invertScale:number=1 / scale;
+				const invertScale:number=1 / scale;
 				BinGAFAssetConfigConverter.sHelperMatrix.scale(invertScale, invertScale);
 				// TODO RectangleUtil.getBounds
-				//RectangleUtil.getBounds(sHelperRectangle, sHelperMatrix, sHelperRectangle);
+				// RectangleUtil.getBounds(sHelperRectangle, sHelperMatrix, sHelperRectangle);
 
 				if(this._textureElementSizes[elementAtlasID]==null)
 				{
@@ -445,12 +449,12 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private getTextureAtlasScale(scale:number):CTextureAtlasScale
 	{
-		var textureAtlasScale:CTextureAtlasScale=null;
-		var textureAtlasScales:Array<CTextureAtlasScale>=this._config.allTextureAtlases;
+		let textureAtlasScale:CTextureAtlasScale=null;
+		const textureAtlasScales:Array<CTextureAtlasScale>=this._config.allTextureAtlases;
 
-		var l:number = textureAtlasScales.length;
+		// const l:number = textureAtlasScales.length;
 		
-		for(i in 0...l)
+		for(const i in textureAtlasScales)
 		{
 			if(MathUtility.equals(textureAtlasScales[i].scale, scale))
 			{
@@ -471,8 +475,8 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private getTextureAtlasCSF(scale:number, csf:number):CTextureAtlasCSF
 	{
-		var textureAtlasScale:CTextureAtlasScale=this.getTextureAtlasScale(scale);
-		var textureAtlasCSF:CTextureAtlasCSF=textureAtlasScale.getTextureAtlasForCSF(csf);
+		const textureAtlasScale:CTextureAtlasScale=this.getTextureAtlasScale(scale);
+		let textureAtlasCSF:CTextureAtlasCSF=textureAtlasScale.getTextureAtlasForCSF(csf);
 		if(textureAtlasCSF==null)
 		{
 			textureAtlasCSF=new CTextureAtlasCSF(csf, scale);
@@ -484,12 +488,12 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 
 	private updateTextureAtlasSources(textureAtlasCSF:CTextureAtlasCSF, atlasID:string, source:string):void
 	{
-		var textureAtlasSource:CTextureAtlasSource=null;
-		var textureAtlasSources:Array<CTextureAtlasSource>=textureAtlasCSF.sources;
+		let textureAtlasSource:CTextureAtlasSource=null;
+		const textureAtlasSources:Array<CTextureAtlasSource>=textureAtlasCSF.sources;
 		
-		var l:number = textureAtlasSources.length;
+		// const l:number = textureAtlasSources.length;
 		
-		for(i in 0...l)
+		for(const i in textureAtlasSources)
 		{
 			if(textureAtlasSources[i].id==atlasID)
 			{
@@ -507,12 +511,12 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private static readAnimationMasks(tagID:number, tagContent:GAFBytesInput, timelineConfig:GAFTimelineConfig):void
 	{
-		var length:number=tagContent.readUnsignednumber();
-		var objectID:number=0;
-		var regionID:number=0;
-		var type:string;
+		const length:number=tagContent.readUnsignednumber();
+		let objectID:number=0;
+		let regionID:number=0;
+		let type:string;
 
-		for(i in 0...length)
+		for(let i = 0; i < length; i++)
 		{
 			objectID=tagContent.readUnsignednumber();
 			regionID=tagContent.readUnsignednumber();
@@ -530,7 +534,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private static getAnimationObjectTypeString(type:number):string
 	{
-		var typeString:string=CAnimationObject.TYPE_TEXTURE;
+		let typeString:string=CAnimationObject.TYPE_TEXTURE;
 		switch(type)
 		{
 			case 0:
@@ -546,12 +550,12 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 
 	private static readAnimationObjects(tagID:number, tagContent:GAFBytesInput, timelineConfig:GAFTimelineConfig):void
 	{
-		var length:number=tagContent.readUnsignednumber();
-		var objectID:number=0;
-		var regionID:number=0;
-		var type:string;
+		const length:number=tagContent.readUnsignednumber();
+		let objectID:number=0;
+		let regionID:number=0;
+		let type:string;
 
-		for(i in 0...length)
+		for(let i = 0;i < length;i++)
 		{
 			objectID=tagContent.readUnsignednumber();
 			regionID=tagContent.readUnsignednumber();
@@ -569,12 +573,12 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private static readAnimationSequences(tagContent:GAFBytesInput, timelineConfig:GAFTimelineConfig):void
 	{
-		var length:number=tagContent.readUnsignednumber();
-		var sequenceID:string;
-		var startFrameNo:number;
-		var endFrameNo:number;
+		const length:number=tagContent.readUnsignednumber();
+		let sequenceID:string;
+		let startFrameNo:number;
+		let endFrameNo:number;
 
-		for(i in 0...length)
+		for(let i = 0;i < length;i++)
 		{
 			sequenceID=tagContent.readUTF();
 			startFrameNo=tagContent.readShort();
@@ -587,36 +591,36 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	{
 		timelineConfig.namedParts=new Map<string,string>();
 
-		var length:number=tagContent.readUnsignednumber();
-		var partID:number=0;
-		for(i in 0...length)
+		const length:number=tagContent.readUnsignednumber();
+		let partID:number=0;
+		for(let i = 0;i < length;i++)
 		{
 			partID=tagContent.readUnsignednumber();
-			timelineConfig.namedParts[Std.string(partID)]=tagContent.readUTF();
+			timelineConfig.namedParts[String(partID)]=tagContent.readUTF();
 		}
 	}
 	
 	private static readTextFields(tagContent:GAFBytesInput, timelineConfig:GAFTimelineConfig):void
 	{
-		var length:number=tagContent.readUnsignednumber();
-		var pivotX:number;
-		var pivotY:number;
-		var textFieldID:number=0;
-		var width:number;
-		var height:number;
-		var text:string;
-		var embedFonts:boolean;
-		var multiline:boolean;
-		var wordWrap:boolean;
-		var restrict:string=null;
-		var editable:boolean;
-		var selectable:boolean;
-		var displayAsPassword:boolean;
-		var maxChars:number=0;
+		const length:number=tagContent.readUnsignednumber();
+		let pivotX:number;
+		let pivotY:number;
+		let textFieldID:number=0;
+		let width:number;
+		let height:number;
+		let text:string;
+		let embedFonts:boolean;
+		let multiline:boolean;
+		let wordWrap:boolean;
+		let restrict:string=null;
+		let editable:boolean;
+		let selectable:boolean;
+		let displayAsPassword:boolean;
+		let maxChars:number=0;
 
-		var textFormat:TextStyle;
+		let textFormat:TextStyle;
 
-		for(i in 0...length)
+		for(let i = 0;i < length;i++)
 		{
 			textFieldID=tagContent.readUnsignednumber();
 			pivotX=tagContent.readnumber();
@@ -630,7 +634,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 			multiline=tagContent.readboolean();
 			wordWrap=tagContent.readboolean();
 
-			var hasRestrict:boolean=tagContent.readboolean();
+			const hasRestrict:boolean=tagContent.readboolean();
 			if(hasRestrict)
 			{
 				restrict=tagContent.readUTF();
@@ -642,8 +646,8 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 			maxChars=tagContent.readUnsignednumber();
 
 			// read textFormat
-			var alignFlag:number=tagContent.readUnsignednumber();
-			var align:string=null;
+			const alignFlag:number=tagContent.readUnsignednumber();
+			let align:string=null;
 			switch(alignFlag)
 			{
 				case 0:
@@ -660,33 +664,33 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 					align=TextFormatAlign.END;
 			}
 
-			var blockIndent:number=tagContent.readUnsignednumber();
-			var bold:boolean=tagContent.readboolean();
-			var bullet:boolean=tagContent.readboolean();
-			var color:number=tagContent.readUnsignednumber();
+			// const blockIndent:number=tagContent.readUnsignednumber();
+			const bold:boolean=tagContent.readboolean();
+			// const bullet:boolean=tagContent.readboolean();
+			const color:number=tagContent.readUnsignednumber();
 
-			var font:string=tagContent.readUTF();
-			var indent:number=tagContent.readUnsignednumber();
-			var italic:boolean=tagContent.readboolean();
-			var kerning:boolean=tagContent.readboolean();
-			var leading:number=tagContent.readUnsignednumber();
-			var leftMargin:number=tagContent.readUnsignednumber();
-			var letterSpacing:number=tagContent.readnumber();
-			var rightMargin:number=tagContent.readUnsignednumber();
-			var size:number=tagContent.readUnsignednumber();
+			const font:string=tagContent.readUTF();
+			// const indent:number=tagContent.readUnsignednumber();
+			const italic:boolean=tagContent.readboolean();
+			// const kerning:boolean=tagContent.readboolean();
+			// const leading:number=tagContent.readUnsignednumber();
+			// const leftMargin:number=tagContent.readUnsignednumber();
+			const letterSpacing:number=tagContent.readnumber();
+			// const rightMargin:number=tagContent.readUnsignednumber();
+			const size:number=tagContent.readUnsignednumber();
 
-			var l:number=tagContent.readUnsignednumber();
-			var tabStops:Array<any>=[];
-			for(j in 0...l)
+			const l:number=tagContent.readUnsignednumber();
+			const tabStops:Array<any>=[];
+			for(let j = 0;j < l;j++)
 			{
 				tabStops.push(tagContent.readUnsignednumber());
 			}
 
-			var target:string=tagContent.readUTF();
-			var underline:boolean=tagContent.readboolean();
-			var url:string=tagContent.readUTF();
+			// const target:string=tagContent.readUTF();
+			// const underline:boolean=tagContent.readboolean();
+			// const url:string=tagContent.readUTF();
 
-			/* var display:string=tagContent.readUTF();*/
+			/* let display:string=tagContent.readUTF();*/
 
 			textFormat = new TextStyle();
 			textFormat.fontFamily = font;
@@ -694,23 +698,23 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 			textFormat.fill = color;
 			textFormat.fontWeight = bold ? "bold" : "normal";
 			textFormat.fontStyle = italic ? "italic" : "normal";
-			//textFormat. = underline;
-			//textFormat. = url;
-			//textFormat. = target;
-			textFormat.align = align;
-			//textFormat. = leftMargin;
-			//textFormat. = rightMargin;
-			//textFormat. = blockIndent;
-			//textFormat. = leading;
+			// textFormat. = underline;
+			// textFormat. = url;
+			// textFormat. = target;
+			textFormat.align = align as TextStyleAlign;
+			// textFormat. = leftMargin;
+			// textFormat. = rightMargin;
+			// textFormat. = blockIndent;
+			// textFormat. = leading;
 
-			//textFormat.=bullet;
-			//textFormat.=kerning;
-			//textFormat.=display;
+			// textFormat.=bullet;
+			// textFormat.=kerning;
+			// textFormat.=display;
 			textFormat.letterSpacing=letterSpacing;
-			//textFormat.=tabStops;
-			//textFormat.=indent;
+			// textFormat.=tabStops;
+			// textFormat.=indent;
 
-			var textFieldObject:CTextFieldObject=new CTextFieldObject(Std.string(textFieldID), text, textFormat,width, height);
+			const textFieldObject:CTextFieldObject=new CTextFieldObject(String(textFieldID), text, textFormat,width, height);
 			textFieldObject.pivotPoint.x=-pivotX;
 			textFieldObject.pivotPoint.y=-pivotY;
 			textFieldObject.embedFonts=embedFonts;
@@ -725,40 +729,40 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 		}
 	}
 	
-	private readAnimationFrames(tagID:number, startIndex:number=0, ?framesCount:number=-1, ?prevFrame:CAnimationFrame=null):void
+	private readAnimationFrames(tagID:number, startIndex:number=0, framesCount:number=-1, prevFrame:CAnimationFrame=null):void
 	{
 		if(framesCount==-1)
 		{
 			framesCount=this._bytes.readUnsignednumber();
 		}
-		var missedFrameNumber:number=0;
-		var filterLength:number=0;
-		var frameNumber:number=0;
-		var statesCount:number=0;
-		var filterType:number=0;
-		var stateID:number=0;
-		var zIndex:number=0;
-		var alpha:number;
-		var matrix:Matrix;
-		var maskID:string;
-		var hasMask:boolean=false;
-		var hasEffect:boolean=false;
-		var hasActions:boolean=false;
-		var hasColorTransform:boolean=false;
-		var hasChangesInDisplayList:boolean=false;
+		let missedFrameNumber:number=0;
+		let filterLength:number=0;
+		let frameNumber:number=0;
+		let statesCount:number=0;
+		let filterType:number=0;
+		let stateID:number=0;
+		let zIndex:number=0;
+		let alpha:number;
+		let matrix:Matrix;
+		let maskID:string;
+		let hasMask:boolean=false;
+		let hasEffect:boolean=false;
+		let hasActions:boolean=false;
+		let hasColorTransform:boolean=false;
+		let hasChangesInDisplayList:boolean=false;
 
-		var timelineConfig:GAFTimelineConfig=this._config.timelines[this._config.timelines.length - 1];
-		var instance:CAnimationFrameInstance;
-		var currentFrame:CAnimationFrame;
-		var blurFilter:CBlurFilterData;
-		var blurFilters:Map<string,CBlurFilterData>= new Map<string,CBlurFilterData>();
-		var filter:CFilter;
+		const timelineConfig:GAFTimelineConfig=this._config.timelines[this._config.timelines.length - 1];
+		let instance:CAnimationFrameInstance;
+		let currentFrame:CAnimationFrame;
+		let blurFilter:CBlurFilterData;
+		const blurFilters:Map<string,CBlurFilterData>= new Map<string,CBlurFilterData>();
+		let filter:CFilter;
 
 		if(framesCount!=-1)
 		{
-			for(i in startIndex...framesCount)
+			for(let i = startIndex; i < framesCount; i++)
 			{
-				if(this._async /*&&(getTimer()- cycleTime>=20)*/)
+				if(this._async /* &&(getTimer()- cycleTime>=20)*/)
 				{
 					console.warn("TODO asynchrone readAnimationFrames");
 					return;
@@ -806,7 +810,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 				{
 					statesCount=this._bytes.readUnsignednumber();
 
-					for(j in 0...statesCount)
+					for(let j = 0; i < statesCount; j++)
 					{
 						hasColorTransform=this._bytes.readboolean();
 						hasMask=this._bytes.readboolean();
@@ -825,7 +829,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 
 						if(hasColorTransform)
 						{
-							var params:Array<number>=[
+							const params:Array<number>=[
 								this._bytes.readnumber(), this._bytes.readnumber(), this._bytes.readnumber(),
 								this._bytes.readnumber(), this._bytes.readnumber(), this._bytes.readnumber(),
 								this._bytes.readnumber()];
@@ -838,33 +842,33 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 							if (filter==null) filter=new CFilter();
 
 							filterLength=this._bytes.readSByte();
-							for(k in 0...filterLength)
+							for(let k = 0; k < filterLength; k++)
 							{
 								filterType=this._bytes.readUnsignednumber();
-								var warning:string=null;
+								let warning:string=null;
 
 								switch(filterType)
 								{
 									case BinGAFAssetConfigConverter.FILTER_DROP_SHADOW:
-										warning=this.readDropShadowFilter(this._bytes, filter);
+										warning=BinGAFAssetConfigConverter.readDropShadowFilter(this._bytes, filter);
 									case BinGAFAssetConfigConverter.FILTER_BLUR:
-										warning=this.readBlurFilter(this._bytes, filter);
-										blurFilter=cast(filter.filterConfigs[filter.filterConfigs.length - 1],CBlurFilterData);
+										warning=BinGAFAssetConfigConverter.readBlurFilter(this._bytes, filter);
+										blurFilter=filter.filterConfigs[filter.filterConfigs.length - 1] as CBlurFilterData;
 										if(blurFilter.blurX>=2 && blurFilter.blurY>=2)
 										{
-											if (!blurFilters.exists(Std.string(stateID)))
+											if (!blurFilters.has(String(stateID)))
 											{
-												blurFilters[Std.string(stateID)]=blurFilter;
+												blurFilters[String(stateID)]=blurFilter;
 											}
 										}
 										else
 										{
-											blurFilters[Std.string(stateID)]=null;
+											blurFilters[String(stateID)]=null;
 										}
 									case BinGAFAssetConfigConverter.FILTER_GLOW:
-										warning=this.readGlowFilter(this._bytes, filter);
+										warning=BinGAFAssetConfigConverter.readGlowFilter(this._bytes, filter);
 									case BinGAFAssetConfigConverter.FILTER_COLOR_MATRIX:
-										warning=this.readColorMatrixFilter(this._bytes, filter);
+										warning=BinGAFAssetConfigConverter.readColorMatrixFilter(this._bytes, filter);
 									default:
 										console.warn(WarningConstants.UNSUPPORTED_FILTERS);
 								}
@@ -898,27 +902,28 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 
 				if(hasActions)
 				{
-					var data:any;
-					var action:CFrameAction;
-					var count:number=this._bytes.readUnsignednumber();
-					for(a in 0...count)
+					// let data:any;
+					let action:CFrameAction;
+					const count:number=this._bytes.readUnsignednumber();
+					for(let a = 0; a < count; a++)
 					{
 						action=new CFrameAction();
 						action.type=this._bytes.readUnsignednumber();
 						action.scope=this._bytes.readUTF();
 
-						var paramsLength:number=this._bytes.readUnsignednumber();
+						const paramsLength:number=this._bytes.readUnsignednumber();
 						if(paramsLength>0)
 						{
-							var lBytes:Bytes = Bytes.alloc(paramsLength);
-							this._bytes.readBytes(lBytes, 0, paramsLength);
-							var paramsBA:GAFBytesInput = new GAFBytesInput(lBytes);
+							const lBytes = new ArrayBuffer(paramsLength);
+							// Maybe this is wrong
+							this._bytes.readBytes(paramsLength, 0);
+							let paramsBA:GAFBytesInput = new GAFBytesInput(lBytes);
 							paramsBA.bigEndian = false;
 							while(paramsBA.position<paramsBA.length)
 							{
 								action.params.push(paramsBA.readUTF());
 							}
-							paramsBA.close();
+							paramsBA.delete();
 							paramsBA = null;
 						}
 
@@ -926,11 +931,11 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 						{
 							if(this._ignoreSounds)
 							{
-								continue;//do not add sound events if they're ignored
+								continue;// do not add sound events if they're ignored
 							}
 							
-							data=Json.parse(action.params[3]);
-							//timelineConfig.addSound(data, frameNumber);
+							// data = JSON.parse(action.params[3]);
+							// timelineConfig.addSound(data, frameNumber);
 						}
 
 						currentFrame.addAction(action);
@@ -940,7 +945,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 				timelineConfig.animationConfigFrames.addFrame(currentFrame);
 
 				prevFrame=currentFrame;
-			} //end loop
+			} // end loop
 
 			missedFrameNumber = prevFrame.frameNumber + 1;
 			while (missedFrameNumber<=timelineConfig.framesCount) {
@@ -948,9 +953,9 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 				missedFrameNumber++;
 			}
 
-			for(currentFrame in timelineConfig.animationConfigFrames.frames)
+			for(const currentFrame of timelineConfig.animationConfigFrames.frames)
 			{
-				for(instance in currentFrame.instances)
+				for(const instance of currentFrame.instances)
 				{
 					if(blurFilters[instance.id]!=null && instance.filter!=null)
 					{
@@ -964,20 +969,20 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 					}
 				}
 			}
-		} //end condition
+		} // end condition
 
 		this.delayedReadNextTag();
 	}
 	
 	private readMaskMaxSizes():void
 	{
-		for(timeline in this._config.timelines)
+		for(const timeline of this._config.timelines)
 		{
-			for(frame in timeline.animationConfigFrames.frames)
+			for(const frame of timeline.animationConfigFrames.frames)
 			{
-				for(frameInstance in frame.instances)
+				for(const frameInstance of frame.instances)
 				{
-					var animationObject:CAnimationObject=timeline.animationObjects.getAnimationObject(frameInstance.id);
+					const animationObject:CAnimationObject=timeline.animationObjects.getAnimationObject(frameInstance.id);
 					if(animationObject.mask)
 					{
 						if(animationObject.maxSize==null)
@@ -985,16 +990,16 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 							animationObject.maxSize=new Point();
 						}
 
-						var maxSize:Point=animationObject.maxSize;
+						const maxSize:Point=animationObject.maxSize;
 
 						if(animationObject.type==CAnimationObject.TYPE_TEXTURE)
 						{
-							BinGAFAssetConfigConverter.sHelperRectangle.copyFrom(this._textureElementSizes[Std.parsenumber(animationObject.regionID)]);
+							BinGAFAssetConfigConverter.sHelperRectangle.copyFrom(this._textureElementSizes[parseInt(animationObject.regionID)]);
 						}
 						else if(animationObject.type==CAnimationObject.TYPE_TIMELINE)
 						{
-							var maskTimeline:GAFTimelineConfig=null;
-							for(maskTimeline in this._config.timelines)
+							const maskTimeline:GAFTimelineConfig=null;
+							for(const maskTimeline of this._config.timelines)
 							{
 								if(maskTimeline.id==animationObject.regionID)
 								{
@@ -1005,14 +1010,14 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 						}
 						else if(animationObject.type==CAnimationObject.TYPE_TEXTFIELD)
 						{
-							var textField:CTextFieldObject=timeline.textFields.textFieldObjectsDictionary[animationObject.regionID];
+							const textField:CTextFieldObject=timeline.textFields.textFieldObjectsDictionary[animationObject.regionID];
 							BinGAFAssetConfigConverter.sHelperRectangle.x =-textField.pivotPoint.x;
 							BinGAFAssetConfigConverter.sHelperRectangle.y =-textField.pivotPoint.y;
 							BinGAFAssetConfigConverter.sHelperRectangle.width = textField.width;
 							BinGAFAssetConfigConverter.sHelperRectangle.height = textField.height;
 						}
-						//TODO
-						//RectangleUtil.getBounds(sHelperRectangle, frameInstance.matrix, sHelperRectangle);
+						// TODO
+						// RectangleUtil.getBounds(sHelperRectangle, frameInstance.matrix, sHelperRectangle);
 						maxSize.set(
 								Math.max(maxSize.x, Math.abs(BinGAFAssetConfigConverter.sHelperRectangle.width)),
 								Math.max(maxSize.y, Math.abs(BinGAFAssetConfigConverter.sHelperRectangle.height)));
@@ -1024,12 +1029,12 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private endParsing():void
 	{
-		this._bytes.close();
+		this._bytes.delete();
 		this._bytes=null;
 
 		this.readMaskMaxSizes();
 
-		var itemIndex:number=0;
+		let itemIndex:number=0;
 		
 		if(Number.isNaN(this._config.defaultScale))
 		{
@@ -1061,9 +1066,9 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 			this._config.defaultContentScaleFactor=this._config.csfValues[itemIndex];
 		}
 
-		for(textureAtlasScale in this._config.allTextureAtlases)
+		for(const textureAtlasScale of this._config.allTextureAtlases)
 		{
-			for(textureAtlasCSF in textureAtlasScale.allContentScaleFactors)
+			for(const textureAtlasCSF of textureAtlasScale.allContentScaleFactors)
 			{
 				if(MathUtility.equals(this._config.defaultContentScaleFactor, textureAtlasCSF.csf))
 				{
@@ -1073,11 +1078,11 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 			}
 		}
 
-		for(timelineConfig in this._config.timelines)
+		for(const timelineConfig of this._config.timelines)
 		{
 			timelineConfig.allTextureAtlases=this._config.allTextureAtlases;
 
-			for(textureAtlasScale in this._config.allTextureAtlases)
+			for(const textureAtlasScale of this._config.allTextureAtlases)
 			{
 				if(MathUtility.equals(this._config.defaultScale, textureAtlasScale.scale))
 				{
@@ -1095,7 +1100,7 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private parseError(message:string):void
 	{
-		if(hasEventListener(GAFEvent.ERROR))
+		if(EventEmitterUtility.hasEventListener(this, GAFEvent.ERROR))
 		{
 			this.emit(GAFEvent.ERROR, {bubbles:false, cancelable:false, text:message});
 		}
@@ -1105,11 +1110,11 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 		}
 	}
 	
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	//
 	//  GETTERS AND SETTERS
 	//
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	
  	get config():GAFAssetConfig
@@ -1129,18 +1134,18 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 		this._ignoreSounds=ignoreSounds;
 	}
 	
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	//
 	//  STATIC METHODS
 	//
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	private static readStageConfig(tagContent:GAFBytesInput, config:GAFAssetConfig):void
 	{
-		var stageConfig:CStage=new CStage();
+		const stageConfig:CStage=new CStage();
 
 		stageConfig.fps = tagContent.readSByte();
-		//stageConfig.color=tagContent.readnumber();
+		// stageConfig.color=tagContent.readnumber();
 		stageConfig.color=tagContent.readnumber();
 		stageConfig.width=tagContent.readUnsignedShort();
 		stageConfig.height=tagContent.readUnsignedShort();
@@ -1150,14 +1155,14 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private static readDropShadowFilter(source:GAFBytesInput, filter:CFilter):string
 	{
-		var color:Array<any>=this.readColorValue(source);
-		var blurX:number=source.readnumber();
-		var blurY:number=source.readnumber();
-		var angle:number=source.readnumber();
-		var distance:number=source.readnumber();
-		var strength:number=source.readnumber();
-		var inner:boolean=source.readboolean();
-		var knockout:boolean=source.readboolean();
+		const color:Array<any>=this.readColorValue(source);
+		const blurX:number=source.readnumber();
+		const blurY:number=source.readnumber();
+		const angle:number=source.readnumber();
+		const distance:number=source.readnumber();
+		const strength:number=source.readnumber();
+		const inner:boolean=source.readboolean();
+		const knockout:boolean=source.readboolean();
 
 		return filter.addDropShadowFilter(blurX, blurY, color[1], color[0], angle, distance, strength, inner, knockout);
 	}
@@ -1169,20 +1174,21 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 
 	private static readGlowFilter(source:GAFBytesInput, filter:CFilter):string
 	{
-		var color:Array<any>=this.readColorValue(source);
-		var blurX:number=source.readnumber();
-		var blurY:number=source.readnumber();
-		var strength:number=source.readnumber();
-		var inner:boolean=source.readboolean();
-		var knockout:boolean=source.readboolean();
+		const color:Array<any>=this.readColorValue(source);
+		const blurX:number=source.readnumber();
+		const blurY:number=source.readnumber();
+		const strength:number=source.readnumber();
+		const inner:boolean=source.readboolean();
+		const knockout:boolean=source.readboolean();
 
 		return filter.addGlowFilter(blurX, blurY, color[1], color[0], strength, inner, knockout);
 	}
 
 	private static readColorMatrixFilter(source:GAFBytesInput, filter:CFilter):string
 	{
-		var matrix:Array<number>=new Array<number>();
-		for(i in 0...20)
+		const matrix:Array<number>=[];
+		
+		for(const i of [...Array(20)].keys())
 		{
 			matrix[i]=source.readnumber();
 		}
@@ -1192,9 +1198,9 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 
 	private static readColorValue(source:GAFBytesInput):Array<number>
 	{
-		var argbValue:number=source.readUnsignednumber();
-		var alpha:number=Std.int(((argbValue>>24)& 0xFF)* 100 / 255)/ 100;
-		var color:number=argbValue & 0xFFFFFF;
+		const argbValue:number=source.readUnsignednumber();
+		const alpha:number=(Number(((argbValue>>24)& 0xFF)* 100 / 255) | 0) / 100;
+		const color:number=argbValue & 0xFFFFFF;
 
 		return [alpha, color];
 	}
@@ -1204,13 +1210,13 @@ class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
  	set defaultScale(defaultScale:number)
 	{
-		return this._defaultScale=defaultScale;
+		this._defaultScale=defaultScale;
 	}
 
 	
  	set defaultCSF(csf:number)
 	{
-		return this._defaultContentScaleFactor=csf;
+		this._defaultContentScaleFactor=csf;
 	}
 	
 }

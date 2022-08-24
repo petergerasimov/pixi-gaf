@@ -1,3 +1,4 @@
+/* eslint-disable valid-jsdoc */
 /**
  * TODO
  * @author Mathieu Anthoine
@@ -5,6 +6,7 @@
 
 import { Loader, utils } from "pixi.js";
 import CSound from "../data/config/CSound";
+import BinGAFAssetConfigConverter from "../data/converters/BinGAFAssetConfigConverter";
 import GAFAsset from "../data/GAFAsset";
 import GAFAssetConfig from "../data/GAFAssetConfig";
 import GAFBundle from "../data/GAFBundle";
@@ -24,11 +26,11 @@ import GAFLoader from "./GAFLoader";
 export default class ZipToGAFAssetConverter extends utils.EventEmitter
 {
 	
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	//
 	//  PUBLIC VARIABLES
 	//
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	/**
 	* In process of conversion doesn't create textures (doesn't load in GPU memory).
@@ -53,15 +55,15 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 	public static actionWithAtlases: string = ZipToGAFAssetConverter.ACTION_LOAD_IN_GPU_MEMORY_ONLY_DEFAULT;
 	
 	
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	//
 	//  PRIVATE VARIABLES
 	//
-	//--------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------	
 	private _id:string;
 
-	//private _zip:FZip;
-	//private _zipLoader:FZipLibrary;
+	// private _zip:FZip;
+	// private _zipLoader:FZipLibrary;
 
 	private _currentConfigIndex:number=0;
 	private _configConvertTimeout:number;
@@ -71,7 +73,7 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 	private _gafAssetConfigSources:Map<string,GAFBytesInput>;
 
 	private _sounds:Array<CSound>;
-	//private _taGFXs:Map<string,TAGFXSourcePNGBA>;
+	// private _taGFXs:Map<string,TAGFXSourcePNGBA>;
 	private _taGFXs:Map<string,TAGFXBase>;
 
 	private _gfxData:GAFGFXData;
@@ -85,23 +87,24 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 	private _parseConfigAsync:boolean=false;
 	private _ignoreSounds:boolean=false;
 
-	///////////////////////////////////
+	// /////////////////////////////////
 
 	private _gafAssetsConfigURLs:Array<any>;
 	private _gafAssetsConfigIndex:number=0;
 
 	private _atlasSourceURLs:Array<any>;
-	//private _atlasSourceIndex:number;
+	// private _atlasSourceIndex:number;
 	
-	//////////////////////////////////
+	// ////////////////////////////////
 	
 	private _loader:Loader;
+	loadCompleteSignal: any; // SignalBinding<Loader.OnCompleteSignal>
 	
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	//
 	//  CONSTRUCTOR
 	//
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 		
 	/** Creates a new<code>ZipToGAFAssetConverter</code>instance.
 	* @param id The id of the converter.
@@ -113,11 +116,11 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 		this._id=id;
 	}
 
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	//
 	//  PUBLIC METHODS
 	//
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	
 	/**
 	* Converts GAF file(*.zip)into<code>GAFTimeline</code>or<code>GAFBundle</code>depending on file content.
@@ -147,36 +150,36 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 			this._gafBundle.name=this._id;
 		}
 		
-		//TODO if (Std.is(data, ZipFile)) ; else
+		// TODO if (Std.is(data, ZipFile)) ; else
 		if (typeof data === "string") this.loadUrls([data]);
 		else if (data instanceof Array) this.loadUrls(data);
 		else if(data instanceof GAFLoader) this.parseLoader(data);
 		else
 		{
 			console.warn("ERROR");
-			//zipProcessError(ErrorConstants.UNKNOWN_FORMAT, 6);
+			// zipProcessError(ErrorConstants.UNKNOWN_FORMAT, 6);
 		}
 		
 	}
 	
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	//
 	//  PRIVATE METHODS
 	//
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	private reset():void
 	{
-		//_zip=null;
-		//_zipLoader=null;
+		// _zip=null;
+		// _zipLoader=null;
 		this._currentConfigIndex=0;
 		this._configConvertTimeout=0;
 
-		this._sounds=new Array<CSound>();
+		this._sounds=[];
 		this._taGFXs=new Map<string,TAGFXBase>();
 
 		this._gfxData=new GAFGFXData();
-		//_soundData=new GAFSoundData();
+		// _soundData=new GAFSoundData();
 		this._gafBundle=new GAFBundle();
 		this._gafBundle.soundData=this._soundData;
 
@@ -188,7 +191,7 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 		this._gafAssetsConfigIndex=0;
 
 		this._atlasSourceURLs=[];
-		//_atlasSourceIndex=0;
+		// _atlasSourceIndex=0;
 	}	
 	
 	private findAllAtlasURLs():void
@@ -196,8 +199,8 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 		
 		this._atlasSourceURLs=[];
 
-		var url:string;
-		var gafTimelineConfigs:Array<GAFTimelineConfig>;
+		let url:string;
+		let gafTimelineConfigs:Array<GAFTimelineConfig>;
 
 		for(const id of this._gafAssetConfigs.keys())
 		{
@@ -205,7 +208,7 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 
 			for(const config of gafTimelineConfigs)
 			{
-				var folderURL:string = ZipToGAFAssetConverter.getFolderURL(id);
+				const folderURL:string = ZipToGAFAssetConverter.getFolderURL(id);
 
 				for(const scale of config.allTextureAtlases)
 				{
@@ -235,42 +238,43 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 		if(this._atlasSourceURLs.length>0)
 		{
 			this._loader = new Loader();
-			this._loader.on(GAFEvent.COMPLETE, this.createGAFTimelines);
+			// this._loader.on(GAFEvent.COMPLETE, this.createGAFTimelines);
+			this.loadCompleteSignal = this._loader.onComplete.add(this.createGAFTimelines);
 			
-			var url:string;
-			var fileName:string;
-			//var taGFX:TAGFXBase;
+			let url:string;
+			let fileName:string;
+			// var taGFX:TAGFXBase;
 			
-			for (const _atlasSourceIndex in this._atlasSourceURLs) {
+			for (const _atlasSourceIndex of this._atlasSourceURLs.keys()) {
 				url=this._atlasSourceURLs[_atlasSourceIndex];
 				fileName = url.substring(url.lastIndexOf("/") + 1);
 				// TODO: verifier s'il ne faut pas plutot le faire à la fin
-				//taGFX = new TAGFXsourcePixi(url);
-				this._taGFXs[fileName] = new TAGFXsourcePixi(url);//; taGFX;
+				// taGFX = new TAGFXsourcePixi(url);
+				this._taGFXs[fileName] = new TAGFXsourcePixi(url);// ; taGFX;
 				this._loader.add(url);
 				
 			}
 			this._loader.load();
 		}
-		//else
-		//{
-			//createGAFTimelines();
-		//}
+		// else
+		// {
+			// createGAFTimelines();
+		// }
 	}
 	
 	private static getFolderURL(url:string):string
 	{
-		var cutURL:string=url.split("?")[0];
+		const cutURL:string=url.split("?")[0];
 
-		var lastIndex:number=cutURL.lastIndexOf("/");
+		const lastIndex:number=cutURL.lastIndexOf("/");
 		
 		return cutURL.substring(0, lastIndex + 1);
 	}
 	
 	private loadUrls(pData:Array<string>):void {
-		var lLoader:GAFLoader = new GAFLoader();
-		for (const i in pData) lLoader.addGAFFile(pData[i]);
-		lLoader.once("complete", this.onLoadUrls);
+		const lLoader:GAFLoader = new GAFLoader();
+		for (const i of pData.keys()) lLoader.addGAFFile(pData[i]);
+		lLoader.onComplete.add(this.onLoadUrls);
 		lLoader.load();
 	}
 	
@@ -280,12 +284,12 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 	
 	private parseLoader(pData:GAFLoader):void
 	{
-		var length:number = pData.contents.length;
+		const length:number = pData.contents.length;
 		
 		let fileName:string;
-		//var taGFX:TAGFXBase;
+		// var taGFX:TAGFXBase;
 
-		//_taGFXs=new Map<TAGFXSourcePNGBA>();
+		// _taGFXs=new Map<TAGFXSourcePNGBA>();
 
 		this._gafAssetConfigSources=new Map<string,GAFBytesInput>();
 		this._gafAssetsIDs=[];
@@ -302,16 +306,16 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 
 	private convertConfig():void
 	{
-		//clearTimeout(_configConvertTimeout);
-		//_configConvertTimeout=null;
+		// clearTimeout(_configConvertTimeout);
+		// _configConvertTimeout=null;
 
-		var configID:string = this._gafAssetsIDs[this._currentConfigIndex];		
-		var configSource:GAFBytesInput=this._gafAssetConfigSources[configID];
-		var gafAssetID:string=this.getAssetId(this._gafAssetsIDs[this._currentConfigIndex]);
+		const configID:string = this._gafAssetsIDs[this._currentConfigIndex];		
+		const configSource:GAFBytesInput=this._gafAssetConfigSources[configID];
+		const gafAssetID:string=this.getAssetId(this._gafAssetsIDs[this._currentConfigIndex]);
 		
 		if(configSource instanceof GAFBytesInput)
 		{
-			var converter:BinGAFAssetConfigConverter=new BinGAFAssetConfigConverter(gafAssetID, configSource);
+			const converter:BinGAFAssetConfigConverter=new BinGAFAssetConfigConverter(gafAssetID, configSource);
 			converter.defaultScale=this._defaultScale;
 			converter.defaultCSF=this._defaultContentScaleFactor;
 			converter.ignoreSounds = this._ignoreSounds;
@@ -321,28 +325,28 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 		}
 		else
 		{
-			throw "Error";
+			throw new Error("Error");
 		}
 	}
 	
 	private createGAFTimelines(event:any=null):void
 	{
 		if (event != null) {
-			this._loader.off(GAFEvent.COMPLETE, this.createGAFTimelines);
+			// this._loader.off(GAFEvent.COMPLETE, this.createGAFTimelines);
+			this._loader.onComplete.detach(this.loadCompleteSignal);
 		}
 
-		var gafTimelineConfigs:Array<GAFTimelineConfig>;
-		var gafAssetConfigID:string;
-		var gafAssetConfig:GAFAssetConfig=null;
-		var gafAsset:GAFAsset=null;
-		var i:number=0;
+		let gafTimelineConfigs:Array<GAFTimelineConfig>;
+		let gafAssetConfigID:string;
+		let gafAssetConfig:GAFAssetConfig=null;
+		let gafAsset:GAFAsset=null;
 
-		//for(taGFX in _taGFXs)
-		//{
-			//taGFX.clearSourceAfterTextureCreated=false;
-		//}
+		// for(taGFX in _taGFXs)
+		// {
+			// taGFX.clearSourceAfterTextureCreated=false;
+		// }
 		
-		for(i in 0..._gafAssetsIDs.length)
+		for(const i of this._gafAssetsIDs.keys())
 		{
 			gafAssetConfigID = this._gafAssetsIDs[i];
 			
@@ -350,7 +354,7 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 			gafTimelineConfigs=gafAssetConfig.timelines;
 
 			gafAsset=new GAFAsset(gafAssetConfig);
-			for(config in gafTimelineConfigs)
+			for(const config of gafTimelineConfigs)
 			{	
 				gafAsset.addGAFTimeline(this.createTimeline(config, gafAsset));
 			}
@@ -360,7 +364,7 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 
 		if(gafAsset==null || gafAsset.timelines.length==0)
 		{
-			//zipProcessError(ErrorConstants.TIMELINES_NOT_FOUND);
+			// zipProcessError(ErrorConstants.TIMELINES_NOT_FOUND);
 			return;
 		}
 
@@ -369,14 +373,14 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 			if (this._gafBundle.name==null) this._gafBundle.name =gafAssetConfig.id;
 		}
 
-		//if(_soundData.hasSoundsToLoad && !_ignoreSounds)
-		//{
-			//_soundData.loadSounds(finalizeParsing, onSoundLoadIOError);
-		//}
-		//else
-		//{
+		// if(_soundData.hasSoundsToLoad && !_ignoreSounds)
+		// {
+			// _soundData.loadSounds(finalizeParsing, onSoundLoadIOError);
+		// }
+		// else
+		// {
 			this.finalizeParsing();
-		//}
+		// }
 	}
 	
 	private finalizeParsing():void
@@ -388,28 +392,28 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 		
 		return;
 		
-		//TODO: a supprimer si ca marche
+		// TODO: a supprimer si ca marche
 		
-		//if(_zip && !ZipToGAFAssetConverter.keepZipInRAM)
-		//{
-			//var file:FZipFile;
-			//var count:number=_zip.getFileCount();
-			//for(i in 0...count)
-			//{
-				//file=_zip.getFileAt(i);
-				//if(file.filename.toLowerCase().indexOf(".atf")==-1
-						//&& file.filename.toLowerCase().indexOf(".png")==-1)
-				//{
-					//file.content.clear();
-				//}
-			//}
-			//_zip.close();
-			//_zip=null;
-		//}
+		// if(_zip && !ZipToGAFAssetConverter.keepZipInRAM)
+		// {
+			// var file:FZipFile;
+			// var count:number=_zip.getFileCount();
+			// for(i in 0...count)
+			// {
+				// file=_zip.getFileAt(i);
+				// if(file.filename.toLowerCase().indexOf(".atf")==-1
+						// && file.filename.toLowerCase().indexOf(".png")==-1)
+				// {
+					// file.content.clear();
+				// }
+			// }
+			// _zip.close();
+			// _zip=null;
+		// }
 
 		if(this._gfxData.isTexturesReady)
 		{
-			//TODO: isTextureready utile ?
+			// TODO: isTextureready utile ?
 			this.emit(GAFEvent.COMPLETE,{target: this});
 		}
 		else
@@ -420,17 +424,17 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 	
 	private createTimeline(config:GAFTimelineConfig, asset:GAFAsset):GAFTimeline
 	{
-		for(cScale in config.allTextureAtlases)
+		for(const cScale of config.allTextureAtlases)
 		{
 			
 			if(this._defaultScale==null || MathUtility.equals(this._defaultScale, cScale.scale))
 			{
-				for(cCSF in cScale.allContentScaleFactors)
+				for(const cCSF of cScale.allContentScaleFactors)
 				{
 					
 					if(this._defaultContentScaleFactor==null || MathUtility.equals(this._defaultContentScaleFactor, cCSF.csf))
 					{
-						for(taSource in cCSF.sources)
+						for(const taSource of cCSF.sources)
 						{
 							if(taSource.source=="no_atlas")
 							{
@@ -439,13 +443,13 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 							
 							if(this._taGFXs[taSource.source]!=null)
 							{
-								var taGFX:TAGFXBase=this._taGFXs[taSource.source];
+								const taGFX:TAGFXBase=this._taGFXs[taSource.source];
 								taGFX.textureScale = cCSF.csf;							
 								this._gfxData.addTAGFX(cScale.scale, cCSF.csf, taSource.id, taGFX);
 							}
 							else
 							{
-								//zipProcessError(ErrorConstants.ATLAS_NOT_FOUND + taSource.source + "' in zip", 3);
+								// zipProcessError(ErrorConstants.ATLAS_NOT_FOUND + taSource.source + "' in zip", 3);
 							}
 						}
 					}
@@ -453,7 +457,7 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 			}
 		}
 
-		var timeline:GAFTimeline=new GAFTimeline(config);
+		const timeline:GAFTimeline=new GAFTimeline(config);
 		
 		timeline.gafgfxData=this._gfxData;
 		timeline.gafSoundData=this._soundData;
@@ -472,7 +476,7 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 	
 	private getAssetId(configName:string):string
 	{
-		var startIndex:number=configName.lastIndexOf("/");
+		let startIndex:number=configName.lastIndexOf("/");
 
 		if(startIndex<0)
 		{
@@ -483,7 +487,7 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 			startIndex++;
 		}
 
-		var endIndex:number=configName.lastIndexOf(".");
+		let endIndex:number=configName.lastIndexOf(".");
 
 		if(endIndex<0)
 		{
@@ -493,52 +497,53 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 		return configName.substring(startIndex, endIndex);
 	}
 	
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	//
 	// OVERRIDDEN METHODS
 	//
-	//--------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------	
 	
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	//
 	//  EVENT HANDLERS
 	//
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	private onConvertError(event:any):void
 	{
-		throw "ZipToGAFAssetConverter: " + event.type;
+		throw new Error("ZipToGAFAssetConverter: " + event.type);
 		
-		if(hasEventListener(GAFEvent.ERROR))
-		{
-			this.emit(event);
-		}
-		else
-		{
-			throw event.text;
-		}
+		// if(hasEventListener(GAFEvent.ERROR))
+		// {
+		// 	this.emit(event);
+		// }
+		// else
+		// {
+		// 	throw event.text;
+		// }
 	}
 
 	private onConverted(event:any):void
 	{
 
-		var configID:string=this._gafAssetsIDs[this._currentConfigIndex];
-		var folderURL:string=this.getFolderURL(configID);
+		const configID:string=this._gafAssetsIDs[this._currentConfigIndex];
+		const folderURL:string=ZipToGAFAssetConverter.getFolderURL(configID);
 		
-		var converter:BinGAFAssetConfigConverter=cast(event.target,BinGAFAssetConfigConverter);
+		const converter:BinGAFAssetConfigConverter=event.target as BinGAFAssetConfigConverter;
 		
 		converter.off(GAFEvent.COMPLETE, this.onConverted);
 		converter.off(GAFEvent.ERROR, this.onConvertError);
 
 		this._gafAssetConfigs[configID]=converter.config;
 		
-		var sounds:Array<CSound>=converter.config.sounds;
+		const sounds:Array<CSound>=converter.config.sounds;
+		
 		if(sounds!=null && !this._ignoreSounds)
 		{
-			for(i in 0...sounds.length)
+			for(const sound of sounds)
 			{
-				sounds[i].source=folderURL + sounds[i].source;
-				//_soundData.addSound(sounds[i], converter.config.id, _sounds[Std.parsenumber(sounds[i].source)]);
+				sound.source=folderURL + sound.source;
+				// _soundData.addSound(sounds[i], converter.config.id, _sounds[Std.parsenumber(sounds[i].source)]);
 			}
 		}
 
@@ -552,20 +557,20 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 			return;
 			
 			// TODO ? Version AS3
-			//if(_gafAssetsConfigURLs!=null && _gafAssetsConfigURLs.length>0)
-			//{
-				//findAllAtlasURLs();
-			//}
-			//else
-			//{
-				//createGAFTimelines();
-			//}
+			// if(_gafAssetsConfigURLs!=null && _gafAssetsConfigURLs.length>0)
+			// {
+				// findAllAtlasURLs();
+			// }
+			// else
+			// {
+				// createGAFTimelines();
+			// }
 		}
 		else
 		{
 			this.convertConfig();
 			// TODO ? Version AS3
-			//_configConvertTimeout=setTimeout(convertConfig, 40);
+			// _configConvertTimeout=setTimeout(convertConfig, 40);
 		}
 	}
 	
@@ -573,32 +578,21 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 	{
 		this._gfxData.off(GAFGFXData.EVENT_TYPE_TEXTURES_READY, this.onTexturesReady);
 
-		//TODO: onTextureReady utilisé ?
+		// TODO: onTextureReady utilisé ?
 		this.emit(GAFEvent.COMPLETE,{target:this});
 	}
 	
-	//--------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	//
 	//  GETTERS AND SETTERS
 	//
-	//--------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------	
 	
 	/**
 	* Return converted<code>GAFBundle</code>. If GAF asset file created as single animation - returns null.
 	*/
-	public var gafBundle(get_gafBundle, null):GAFBundle;
- 	
-	@:keep
 	get gafBundle():GAFBundle
 	{
 		return this._gafBundle;
 	}
-	
-	static function __init__():void {
-        #if js
-        untyped Object.defineProperty(ZipToGAFAssetConverter.prototype, "gafBundle", { get: ZipToGAFAssetConverter.prototype.get_gafBundle });
-        #end
-    }
-	
-	
 }

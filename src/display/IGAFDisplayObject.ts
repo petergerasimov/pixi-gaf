@@ -1,4 +1,4 @@
-import { IDestroyOptions, Matrix } from "pixi.js";
+import { DisplayObject, IDestroyOptions, Matrix } from "pixi.js";
 import CFilter from "../data/config/CFilter";
 
 /**
@@ -6,7 +6,7 @@ import CFilter from "../data/config/CFilter";
  * @author Mathieu Anthoine
  * 
  */
-export default interface IGAFDisplayObject
+export default interface IGAFDisplayObject extends DisplayObject
 {
 	setFilterConfig: (value:CFilter, scale:number) => void;
 	invalidateOrientation: () => void;

@@ -11,7 +11,7 @@ import IMaxSize from "./IMaxSize";
 export default class GAFContainer extends Container implements IGAFDisplayObject, IMaxSize
 {
 
-	private static HELPER_MATRIX:Matrix = new Matrix();
+	static HELPER_MATRIX:Matrix = new Matrix();
 	
 	private _maxSize:Point;
 
