@@ -16,7 +16,8 @@ export default class GAFBytesInput {
 	}
 
 	readSByte() {
-		return this.readByte() - 128;
+		const lByte = this.readByte();
+		return lByte > 127 ? lByte-256 : lByte;
 	}
 	
 	readUnsignedByte () {
@@ -32,11 +33,14 @@ export default class GAFBytesInput {
 	}
 
 	readInt16() {
-		return this.readUint16() - 32768;
+		const lByte =  this.readUint16() - 32768;
+		return lByte > 32767 ? lByte-65536 : lByte;
+		
 	}
 
 	readInt16BE() {
-		return this.readUint16BE() - 32768;
+		const lByte =  this.readUint16BE() - 32768;
+		return lByte > 32767 ? lByte-65536 : lByte;
 	}
 
 	// Couldn't find in haxe docs what this is supposed to do
@@ -45,19 +49,17 @@ export default class GAFBytesInput {
 	}
 	
 	readShort() {
-		const lByte:number = this.readnumber16();
-		return lByte > 32767 ? lByte-65536 : lByte;
+		return this.readnumber16();
 	}	
 	
 	readUnsignedShort () {
-		return this.readnumber16();
+		return this.bigEndian ? this.readUint16BE() : this.readUint16();
 	}
 	
 	readnumber () {
-		return this.readnumber32();
-		// // var lnumber:number = readnumber32();
-		// // lnumber = lnumber > 2147483648 ? lnumber - 4294967296 : lnumber;
-		// // return cast(lnumber, number);
+		// return this.readnumber32();
+		const lnumber = this.readnumber32();
+		return lnumber > 2147483648 ? lnumber - 4294967296 : lnumber;
 	}
 	
 	readUnsignednumber() {
@@ -66,8 +68,8 @@ export default class GAFBytesInput {
 
 	// may return an Unsigned number32 but number32 are converted to number32 if they are above 2147483648
 	private readnumber32 () {
-		const lA:number = this.readnumber16();
-		const lB:number = this.readnumber16();
+		const lA:number = this.readUnsignedShort();
+		const lB:number = this.readUnsignedShort();
 		return (lB << 16) + lA;
 	}
 	
