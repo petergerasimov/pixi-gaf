@@ -114,9 +114,9 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 		
 		this._bytes.bigEndian = false;
 		
-		this._config=new GAFAssetConfig(this._assetID);
-		this._config.compression=this._bytes.readnumber();
-		this._config.versionMajor=this._bytes.readSByte();
+		this._config = new GAFAssetConfig(this._assetID);
+		this._config.compression = this._bytes.readnumber();
+		this._config.versionMajor = this._bytes.readSByte();
 		this._config.versionMinor = this._bytes.readSByte();
 		this._config.fileLength = this._bytes.readUnsignednumber();	
 		
@@ -914,16 +914,14 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 						const paramsLength:number=this._bytes.readUnsignednumber();
 						if(paramsLength>0)
 						{
-							const lBytes = new ArrayBuffer(paramsLength);
-							// Maybe this is wrong
-							this._bytes.readBytes(paramsLength, 0);
+							const lBytes = this._bytes.readBytes(paramsLength, 0);
 							let paramsBA:GAFBytesInput = new GAFBytesInput(lBytes);
 							paramsBA.bigEndian = false;
 							while(paramsBA.position<paramsBA.length)
 							{
 								action.params.push(paramsBA.readUTF());
 							}
-							paramsBA.delete();
+							// paramsBA.delete();
 							paramsBA = null;
 						}
 
@@ -1029,7 +1027,7 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 	
 	private endParsing():void
 	{
-		this._bytes.delete();
+		// this._bytes.delete();
 		this._bytes=null;
 
 		this.readMaskMaxSizes();

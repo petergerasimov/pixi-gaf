@@ -2,6 +2,7 @@ import { utils } from "pixi.js";
 import DebugUtility from "../utils/DebugUtility";
 import ITAGFX from "./tagfx/ITAGFX";
 import TAGFXBase from "./tagfx/TAGFXBase";
+import SubTexture from "./textures/SubTexture";
 import TextureWrapper from "./textures/TextureWrapper";
 
 /**
@@ -284,7 +285,8 @@ export default class GAFGFXData extends utils.EventEmitter
 				tagfx.on(TAGFXBase.EVENT_TYPE_TEXTURE_READY, this.onTextureReady);
 			}
 
-			dictionary[imageID] = TextureWrapper.fromTexture(tagfx.texture);
+			dictionary[imageID] = new SubTexture(tagfx.texture);
+			// dictionary[imageID] = TextureWrapper.fromTexture(tagfx.texture);
 			// dictionary[imageID] = cast Texture.fromImage(tagfx.texture.baseTexture.imageUrl);
 		}
 	}

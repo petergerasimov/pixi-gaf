@@ -1,6 +1,5 @@
 /* eslint-disable valid-jsdoc */
 import { Texture, BaseTexture, Rectangle, Matrix } from "pixi.js";
-import SubTexture from "./SubTexture";
 
 /**
  * PixiJs Wrapper of the Starling Texture Class
@@ -108,12 +107,12 @@ export default class TextureWrapper extends Texture
 	*  @param scaleModifier  The scale factor of the new texture will be calculated by
 	*                  multiplying the parent texture's scale factor with this value.
 	*/
-	public static fromTexture(texture:TextureWrapper, region:Rectangle=null,
-									  frame:Rectangle=null, rotated:boolean=false,
-									  scaleModifier:number=1.0):TextureWrapper
-	{
-		return new SubTexture(texture, region, false, frame, rotated, scaleModifier);
-	}
+	// public static fromTexture(texture:TextureWrapper, region:Rectangle=null,
+	// 								  frame:Rectangle=null, rotated:boolean=false,
+	// 								  scaleModifier:number=1.0):TextureWrapper
+	// {
+	// 	return new SubTexture(texture, region, false, frame, rotated, scaleModifier);
+	// }
 	
 	private static get maxSize():number 
 	{

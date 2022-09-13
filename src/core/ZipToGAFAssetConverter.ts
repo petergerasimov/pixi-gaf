@@ -274,7 +274,7 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 	private loadUrls(pData:Array<string>):void {
 		const lLoader:GAFLoader = new GAFLoader();
 		for (const i of pData.keys()) lLoader.addGAFFile(pData[i]);
-		lLoader.onComplete.add(this.onLoadUrls);
+		lLoader.onComplete.add(this.onLoadUrls.bind(this));
 		lLoader.load();
 	}
 	
@@ -319,8 +319,8 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 			converter.defaultScale=this._defaultScale;
 			converter.defaultCSF=this._defaultContentScaleFactor;
 			converter.ignoreSounds = this._ignoreSounds;
-			converter.on(GAFEvent.COMPLETE, this.onConverted);
-			converter.on(GAFEvent.ERROR, this.onConvertError);
+			converter.on(GAFEvent.COMPLETE, this.onConverted.bind(this));
+			converter.on(GAFEvent.ERROR, this.onConvertError.bind(this));
 			converter.convert(this._parseConfigAsync);
 		}
 		else
@@ -531,8 +531,8 @@ export default class ZipToGAFAssetConverter extends utils.EventEmitter
 		
 		const converter:BinGAFAssetConfigConverter=event.target as BinGAFAssetConfigConverter;
 		
-		converter.off(GAFEvent.COMPLETE, this.onConverted);
-		converter.off(GAFEvent.ERROR, this.onConvertError);
+		converter.off(GAFEvent.COMPLETE, this.onConverted.bind(this));
+		converter.off(GAFEvent.ERROR, this.onConvertError.bind(this));
 
 		this._gafAssetConfigs[configID]=converter.config;
 		

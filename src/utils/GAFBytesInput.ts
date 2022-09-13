@@ -1,19 +1,42 @@
-import { BufferUtility } from "bufferutility";
-
 /**
  * AS3 ByteArray "Wrapper"
  * @author Mathieu Anthoine
  */
-export default class GAFBytesInput extends BufferUtility {
-	bigEndian = false;
-	constructor(b: ArrayBuffer, pos = 0, len?:number) 
-	{
-		super(b.slice(0, len) as Buffer);
-		this.position = pos;
+export default class GAFBytesInput {
+	bigEndian = true;
+	constructor(private buffer: ArrayBuffer, public position = 0, public length = buffer.byteLength) {}
+
+	readBytes(position: number, length: number) {
+		this.position += position;
+		return new Uint8Array(this.buffer.slice(this.position,this.position += length));
+	}
+
+	readByte() {
+		return (new Uint8Array(this.buffer.slice(this.position++,this.position)))[0];
+	}
+
+	readSByte() {
+		return this.readByte() - 128;
 	}
 	
-	readUnsignedByte ():number {
+	readUnsignedByte () {
 		return this.readByte();
+	}
+
+	readUint16() {
+		return this.readByte() | (this.readByte() << 8);
+	}
+
+	readUint16BE() {
+		return (this.readByte() << 8) | this.readByte();
+	}
+
+	readInt16() {
+		return this.readUint16() - 32768;
+	}
+
+	readInt16BE() {
+		return this.readUint16BE() - 32768;
 	}
 
 	// Couldn't find in haxe docs what this is supposed to do
@@ -21,39 +44,39 @@ export default class GAFBytesInput extends BufferUtility {
 		return this.bigEndian ? this.readInt16BE() : this.readInt16();
 	}
 	
-	readShort():number {
+	readShort() {
 		const lByte:number = this.readnumber16();
 		return lByte > 32767 ? lByte-65536 : lByte;
 	}	
 	
-	readUnsignedShort ():number {
+	readUnsignedShort () {
 		return this.readnumber16();
 	}
 	
-	readnumber ():number {
+	readnumber () {
 		return this.readnumber32();
-		// var lnumber:number = readnumber32();
-		// lnumber = lnumber > 2147483648 ? lnumber - 4294967296 : lnumber;
-		// return cast(lnumber, number);
+		// // var lnumber:number = readnumber32();
+		// // lnumber = lnumber > 2147483648 ? lnumber - 4294967296 : lnumber;
+		// // return cast(lnumber, number);
 	}
 	
-	readUnsignednumber():number {
+	readUnsignednumber() {
 		return this.readnumber32();
 	}
 
 	// may return an Unsigned number32 but number32 are converted to number32 if they are above 2147483648
-	private readnumber32 ():number {
+	private readnumber32 () {
 		const lA:number = this.readnumber16();
 		const lB:number = this.readnumber16();
 		return (lB << 16) + lA;
 	}
 	
-	readboolean ():boolean{
+	readboolean () {
 		return this.readSByte() != 0;
 	}
 	
-	readUTF ():string {
-		return this.readString(this.readUnsignedShort());
+	readUTF() {
+		return String.fromCharCode(this.readUint16());
 	}
 	
 	
