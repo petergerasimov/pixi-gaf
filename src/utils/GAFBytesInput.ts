@@ -2,40 +2,37 @@
  * AS3 ByteArray "Wrapper"
  * @author Mathieu Anthoine
  */
-export default class GAFBytesInput {
+ export default class GAFBytesInput {
 	bigEndian = true;
 	constructor(private buffer: ArrayBuffer, public position = 0, public length = buffer.byteLength) {}
 
 	readBytes(position: number, length: number) {
 		this.position += position;
-		return new Uint8Array(this.buffer.slice(this.position,this.position += length));
+		return new Int8Array(this.buffer.slice(this.position,this.position += length));
 	}
 
 	readByte() {
-		return (new Uint8Array(this.buffer.slice(this.position++,this.position)))[0];
+		return (new Int8Array(this.buffer.slice(this.position++,this.position)))[0];
 	}
 
 	readSByte() {
-		const lByte = this.readByte();
-		return lByte > 127 ? lByte-256 : lByte;
+		return this.readByte();
 	}
 	
 	readUnsignedByte () {
-		return this.readByte();
+		return (new Uint8Array(this.buffer.slice(this.position++,this.position)))[0];
 	}
 
 	readUint16() {
-		return this.readByte() | (this.readByte() << 8);
+		return this.readUnsignedByte() | (this.readUnsignedByte() << 8);
 	}
 
 	readUint16BE() {
-		return (this.readByte() << 8) | this.readByte();
+		return (this.readUnsignedByte() << 8) | this.readUnsignedByte();
 	}
 
 	readInt16() {
-		const lByte =  this.readUint16() - 32768;
-		return lByte > 32767 ? lByte-65536 : lByte;
-		
+		return (new Int16Array(this.buffer.slice(this.position,this.position+=2)))[0];
 	}
 
 	readInt16BE() {
@@ -56,10 +53,11 @@ export default class GAFBytesInput {
 		return this.bigEndian ? this.readUint16BE() : this.readUint16();
 	}
 	
-	readnumber () {
+	readnumber() {
 		// return this.readnumber32();
-		const lnumber = this.readnumber32();
-		return lnumber > 2147483648 ? lnumber - 4294967296 : lnumber;
+		// const lnumber = this.readnumber32();
+		// return lnumber > 2147483648 ? lnumber - 4294967296 : lnumber;
+		return (new Float32Array(this.buffer.slice(this.position,this.position+=4)))[0];
 	}
 	
 	readUnsignednumber() {
@@ -68,9 +66,11 @@ export default class GAFBytesInput {
 
 	// may return an Unsigned number32 but number32 are converted to number32 if they are above 2147483648
 	private readnumber32 () {
+		return this.readnumber();
+
 		const lA:number = this.readUnsignedShort();
 		const lB:number = this.readUnsignedShort();
-		return (lB << 16) + lA;
+		return (lB << 16) | lA;
 	}
 	
 	readboolean () {

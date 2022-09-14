@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { utils, Matrix, Point, TextStyle, TextStyleAlign } from "pixi.js";
 import { Rectangle } from "@pixi/math";
 // eslint-disable-next-line no-unused-vars
@@ -28,6 +29,24 @@ import ErrorConstants from "./ErrorConstants";
 import WarningConstants from "./WarningConstants";
 import { EventEmitterUtility } from "../../utils/EventEmitterUtility";
 
+const enum TAGS {
+	END,
+	DEFINE_ATLAS,
+	DEFINE_ANIMATION_MASKS,
+	DEFINE_ANIMATION_OBJECTS,
+	DEFINE_ANIMATION_FRAMES,
+	DEFINE_NAMED_PARTS,
+	DEFINE_SEQUENCES,
+	DEFINE_TEXT_FIELDS,
+	DEFINE_ATLAS2,
+	DEFINE_STAGE,
+	DEFINE_ANIMATION_OBJECTS2,
+	DEFINE_ANIMATION_MASKS2,
+	DEFINE_ANIMATION_FRAMES2,
+	DEFINE_TIMELINE,
+	DEFINE_SOUNDS,
+	DEFINE_ATLAS3
+};
 /**
  * TODO
  * @author Mathieu Anthoine
@@ -38,22 +57,6 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 	private static SIGNATURE_GAC:number=0x00474143;	
 	
 	// tags
-	private static TAG_END:number=0;
-	private static TAG_DEFINE_ATLAS:number=1;
-	private static TAG_DEFINE_ANIMATION_MASKS:number=2;
-	private static TAG_DEFINE_ANIMATION_OBJECTS:number=3;
-	private static TAG_DEFINE_ANIMATION_FRAMES:number=4;
-	private static TAG_DEFINE_NAMED_PARTS:number=5;
-	private static TAG_DEFINE_SEQUENCES:number=6;
-	private static TAG_DEFINE_TEXT_FIELDS:number=7;// v4.0
-	private static TAG_DEFINE_ATLAS2:number=8;// v4.0
-	private static TAG_DEFINE_STAGE:number=9;
-	private static TAG_DEFINE_ANIMATION_OBJECTS2:number=10;// v4.0
-	private static TAG_DEFINE_ANIMATION_MASKS2:number=11;// v4.0
-	private static TAG_DEFINE_ANIMATION_FRAMES2:number=12;// v4.0
-	private static TAG_DEFINE_TIMELINE:number=13;// v4.0
-	private static TAG_DEFINE_SOUNDS:number=14;// v5.0
-	private static TAG_DEFINE_ATLAS3:number=15;// v5.0
 
 	// filters
 	private static FILTER_DROP_SHADOW:number=0;
@@ -190,35 +193,46 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 		
 		switch(tagID)
 		{
-			case BinGAFAssetConfigConverter.TAG_DEFINE_STAGE:
+			case TAGS.DEFINE_STAGE:
 				BinGAFAssetConfigConverter.readStageConfig(this._bytes, this._config);
-			case BinGAFAssetConfigConverter.TAG_DEFINE_ATLAS:
+				break;
+			case TAGS.DEFINE_ATLAS:
 				this.readTextureAtlasConfig(tagID);
-			case BinGAFAssetConfigConverter.TAG_DEFINE_ATLAS2:
+				break;
+			case TAGS.DEFINE_ATLAS2:
 				this.readTextureAtlasConfig(tagID);
-			case BinGAFAssetConfigConverter.TAG_DEFINE_ATLAS3:
+				break;
+			case TAGS.DEFINE_ATLAS3:
 				this.readTextureAtlasConfig(tagID);
-			case BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_MASKS:
+				break;
+			case TAGS.DEFINE_ANIMATION_MASKS:
 				BinGAFAssetConfigConverter.readAnimationMasks(tagID, this._bytes, this._currentTimeline);
-			case BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_MASKS2:
+				break;
+			case TAGS.DEFINE_ANIMATION_MASKS2:
 				BinGAFAssetConfigConverter.readAnimationMasks(tagID, this._bytes, this._currentTimeline);
-			case BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_OBJECTS:
+				break;
+			case TAGS.DEFINE_ANIMATION_OBJECTS:
 				BinGAFAssetConfigConverter.readAnimationObjects(tagID, this._bytes, this._currentTimeline);
-			case BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_OBJECTS2:
+				break;
+			case TAGS.DEFINE_ANIMATION_OBJECTS2:
 				BinGAFAssetConfigConverter.readAnimationObjects(tagID, this._bytes, this._currentTimeline);
-			case BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_FRAMES:
+				break;
+			case TAGS.DEFINE_ANIMATION_FRAMES:
 				this.readAnimationFrames(tagID);
 				return;
-			case BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_FRAMES2:
+			case TAGS.DEFINE_ANIMATION_FRAMES2:
 				this.readAnimationFrames(tagID);
 				return;
-			case BinGAFAssetConfigConverter.TAG_DEFINE_NAMED_PARTS:
+			case TAGS.DEFINE_NAMED_PARTS:
 				BinGAFAssetConfigConverter.readNamedParts(this._bytes, this._currentTimeline);
-			case BinGAFAssetConfigConverter.TAG_DEFINE_SEQUENCES:
+				break;
+			case TAGS.DEFINE_SEQUENCES:
 				BinGAFAssetConfigConverter.readAnimationSequences(this._bytes, this._currentTimeline);
-			case BinGAFAssetConfigConverter.TAG_DEFINE_TEXT_FIELDS:
+				break;
+			case TAGS.DEFINE_TEXT_FIELDS:
 				BinGAFAssetConfigConverter.readTextFields(this._bytes, this._currentTimeline);
-			case BinGAFAssetConfigConverter.TAG_DEFINE_SOUNDS:
+				break;
+			case TAGS.DEFINE_SOUNDS:
 				// TODO TAG_DEFINE_SOUNDS
 				console.warn("TODO TAG_DEFINE_SOUNDS");
 				if(!this._ignoreSounds)
@@ -229,9 +243,11 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 				{
 					this._bytes.position +=tagLength;
 				}
-			case BinGAFAssetConfigConverter.TAG_DEFINE_TIMELINE:
+				break;
+			case TAGS.DEFINE_TIMELINE:
 				this._currentTimeline=this.readTimeline();
-			case BinGAFAssetConfigConverter.TAG_END:
+				break;
+			case TAGS.END:
 				if(this._isTimeline)
 				{
 					this._isTimeline=false;
@@ -242,9 +258,11 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 					this.endParsing();
 					return;
 				}
+				break;
 			default:
 				console.warn(WarningConstants.UNSUPPORTED_TAG);
 				this._bytes.position +=tagLength;
+				break;
 		}
 
 		this.delayedReadNextTag();
@@ -370,7 +388,7 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 			pivot = new Point(this._bytes.readnumber(), this._bytes.readnumber());	
 			topLeft = new Point(this._bytes.readnumber(), this._bytes.readnumber());
 			
-			if(tagID==BinGAFAssetConfigConverter.TAG_DEFINE_ATLAS || tagID==BinGAFAssetConfigConverter.TAG_DEFINE_ATLAS2)
+			if(tagID==TAGS.DEFINE_ATLAS || tagID==TAGS.DEFINE_ATLAS2)
 			{			
 				elementScaleX = elementScaleY = this._bytes.readnumber();
 			}
@@ -380,8 +398,8 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 			atlasID = this._bytes.readUnsignednumber();
 			elementAtlasID = this._bytes.readUnsignednumber();
 
-			if(tagID==BinGAFAssetConfigConverter.TAG_DEFINE_ATLAS2
-			|| tagID==BinGAFAssetConfigConverter.TAG_DEFINE_ATLAS3)
+			if(tagID==TAGS.DEFINE_ATLAS2
+			|| tagID==TAGS.DEFINE_ATLAS3)
 			{
 				hasScale9Grid=this._bytes.readboolean();
 				if(hasScale9Grid)
@@ -397,7 +415,7 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 				}
 			}
 
-			if(tagID==BinGAFAssetConfigConverter.TAG_DEFINE_ATLAS3)
+			if(tagID==TAGS.DEFINE_ATLAS3)
 			{
 				elementScaleX=this._bytes.readnumber();
 				elementScaleY=this._bytes.readnumber();
@@ -520,7 +538,7 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 		{
 			objectID=tagContent.readUnsignednumber();
 			regionID=tagContent.readUnsignednumber();
-			if(tagID==BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_MASKS)
+			if(tagID==TAGS.DEFINE_ANIMATION_MASKS)
 			{
 				type=CAnimationObject.TYPE_TEXTURE;
 			}
@@ -559,7 +577,7 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 		{
 			objectID=tagContent.readUnsignednumber();
 			regionID=tagContent.readUnsignednumber();
-			if(tagID==BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_OBJECTS)
+			if(tagID==TAGS.DEFINE_ANIMATION_OBJECTS)
 			{
 				type=CAnimationObject.TYPE_TEXTURE;
 			}
@@ -770,7 +788,7 @@ export default class BinGAFAssetConfigConverter extends utils.EventEmitter
 
 				frameNumber=this._bytes.readUnsignednumber();
 
-				if(tagID==BinGAFAssetConfigConverter.TAG_DEFINE_ANIMATION_FRAMES)
+				if(tagID==TAGS.DEFINE_ANIMATION_FRAMES)
 				{
 					hasChangesInDisplayList=true;
 					hasActions=false;
